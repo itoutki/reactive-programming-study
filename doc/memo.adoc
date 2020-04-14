@@ -1,0 +1,119 @@
+= メモ
+
+== Reactive Streams
+
+ノンブロッキングIOでバックプレッシャーを備えた非同期ストリーム処理の標準。 +
+JVM向け、JS向けのインタフェース定義（reactive-streams-jvm、reactive-streams-js）、 +
+およびネットワークプロトコル（reactive-streams-io）がある。 +
+
+=== ノンブロッキングIOとブロッキングIO
+
+ブロッキングIO::
+read/writeを全て完了するまで、スレッドは次の処理に移ることはできない。
+
+ノンブロッキングIO::
+read/writeを全て完了していなくても、スレッドは次の処理に移ることができる。
+
+=== 非同期処理と同期処理
+
+同期処理::
+処理が完了するまで次の処理に移ることができない。
+
+非同期処理::
+処理が完了したタイミングで通知され、通知があるまでは他の処理を進めることができる。
+
+=== バック・プレッシャー
+
+* データを受け取る側がデータを送る側に対して流量を制御できるようにするための仕組み。
+
+=== reactive-streams-jvm
+
+4つのインタフェースと各インタフェースが従うべき仕様が定義されている。
+
+* Publisher
+** データ提供者。
+** 有限または無限の順序データを提供する。
+** Subscriberを渡してデータ購読の開始処理を行うsubscribeメソッドを持つ。
+
+.Publisher
+[source, java]
+----
+public interface Publisher<T> {
+    public void subscribe(Subscriber<? super T> s);
+}
+----
+
+* Subscriber
+** データ購読者。
+** Publisherからデータを受け取り、何らかの処理を行う。
+** Publisherから購読が開始されたタイミングでonSubscribeメソッドが呼ばれ、Subscriptionを受け取る。
+** Publisherからデータを受け取るタイミングでonNextメソッドが呼ばれ、データを受け取る。
+** Publisherの処理が完了したタイミングでonCompleteメソッドが呼ばれる。
+** Publisherの処理でエラーが発生したタイミングでonErrorメソッドが呼ばれ、エラー情報（Throwable）を受け取る。
+
+.Subscriber
+[source, java]
+----
+public interface Subscriber<T> {
+    public void onSubscribe(Subscription s);
+    public void onNext(T t);
+    public void onError(Throwable t);
+    public void onComplete();
+}
+----
+
+* Subscription
+** PublisherからSubscriberに渡される購読のためのインタフェース。
+** Subscriptionを通じてデータの要求（+受信可能なデータ件数の通知）や購読のキャンセルを行うことができる。
+** Subscriberへの各種イベント発行（onSubscribeなど）はSubscriptionから行われる。
+
+.Subscription
+[source, java]
+----
+public interface Subscription {
+    public void request(long n);
+    public void cancel();
+}
+----
+
+* Processor
+** PublisherとSubscriberを両方実装したインタフェース。
+
+.Processor
+[source, java]
+----
+public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
+}
+----
+
+image:images/reactive-streams-sequence.png[]
+
+※"Reactive Webアプリケーション - そしてSpring 5へ" p61より引用
+
+== Lite Rx API Hands-On with Reactor Core 3
+
+* link:https://github.com/itoutki/lite-rx-api-hands-on[itoutki/lite-rx-api-hands-on]
+
+
+=== Part01 Flux
+
+=== Part02 Mono
+
+=== Part03 StepVerifier
+
+=== Part04 Transform
+
+=== Part05 Merge
+
+=== Part06 Request
+
+=== Part07 Errors
+
+=== Part08 OtherOperations
+
+=== Part09 Adapt
+
+=== Part10 ReactiveToBlocking
+
+=== Part11 BlockingToReactive
+
