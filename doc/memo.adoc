@@ -97,9 +97,74 @@ image:images/reactive-streams-sequence.png[]
 
 === Part01 Flux
 
+Reactor Coreの主要要素である、 Fluxの生成方法について。 +
+そもそもFluxとは、Reactor CoreにおけるPublisherの実装の1つである。 +
+0〜無限個のデータを提供する。 +
+基本的にはFluxのstaticメソッドを使って生成する。
+
+Flux.empty::
+ただ完了するだけのFluxを生成する。 +
+Reactive StreamsでいうところのonCompleteのみをSubscriberに通知する。
+
+Flux.just::
+引数で指定した値を返すFluxを生成する。
+
+Flux.fromArray::
+引数で指定した配列の内容を順に返すFluxを生成する。
+
+Flux.error::
+引数で指定した例外を返すFluxを生成する。 +
+Reactive Streamsでいう所のonErrorで例外をSubscriberに通知する。
+
+Flux.interval::
+引数で指定した時間間隔ごとに0からLong型の値を順に返すFluxを生成する。 +
+時間間隔のみを指定した場合、初回のデータ（0）は指定時間間隔後に返される。 +
+初回データを返すタイミングを指定したい場合、初回データを返すまでの時間とその後の時間間隔を指定する。
+
+Flux#take::
+Fluxのインスタンスメソッド +
+先頭から引数で指定した数のデータだけを返すFluxに変換する。
+
 === Part02 Mono
 
+Reactor Coreの主要要素である、 Monoの生成方法について。 +
+そもそもMonoとは、Reactor CoreにおけるPublisherの実装の1つである。 +
+0〜1個のデータを提供する。 +
+基本的にはMonoのstaticメソッドを使って生成する。
+
+Mono.empty::
+ただ完了するだけのMonoを生成する。 +
+Reactive StreamsでいうところのonCompleteのみをSubscriberに通知する。
+
+Mono.never::
+何も通知しないMonoを生成する。 +
+何も通知しないので、onCompleteも通知されない。
+
+Mono.just::
+引数で指定した値を返すMonoを生成する。 +
+Flux.justと違い、引数で指定できる値は1つのみ。
+
+Mono.error::
+引数で指定した例外を返すMonoを生成する。 +
+Reactive Streamsでいう所のonErrorで例外をSubscriberに通知する。
+
 === Part03 StepVerifier
+
+FluxやMonoをテストするためのクラスであるStepVerifierの使い方について。 +
+FluxやMonoを返すメソッドのユニットテストを行う場合には必須のクラスだと思われる。
+
+==== よくある使い方
+
+* StepVerifier.createもしくはStepVerifier.withVirtualTimeを使ってStepVerifierを生成する。
+** StepVerifier.createの場合、Flux、Mono、もしくはPublisherの実装クラスを渡す。
+** StepVerifier.withVirtualTimeの場合、Flux、Mono、もしくはPublisherの実装クラスを返すlambdaを渡す。
+* expectNext、expectNextMatches、assertNext、expectNextCountなどを使ってFlux、Monoから返される値の検証を行う。
+** expectNext : 値を指定する。複数個指定できる。
+** expectNextMatches : 真偽値を返すlambda（Predicate）で値を検証する。
+** assertNext : 値を返さないlambda（Consumer）で値を検証する。lambdaの中でassert文を使用する想定。
+** expectNextCount : 値の中身ではなく、個数を検証する。
+* verifyComplete、verifyErrorなどを使って最終状態（Complete or Error）が通知されたことを検証する。
+* 時間のかかるFlux、Monoをテストする場合、withVirtualTimeを使って生成したStepVerifierに対してthenAwaitを使用することで時間経過をエミュレートできる。
 
 === Part04 Transform
 
