@@ -88,7 +88,7 @@ public interface Processor<T, R> extends Subscriber<T>, Publisher<R> {
 
 image:images/reactive-streams-sequence.png[]
 
-※"Reactive Webアプリケーション - そしてSpring 5へ" p61より引用
+※"Reactive Webアプリケーション - そしてSpring 5へ" p62より引用
 
 == Lite Rx API Hands-On with Reactor Core 3
 
@@ -182,3 +182,104 @@ FluxやMonoを返すメソッドのユニットテストを行う場合には必
 
 === Part11 BlockingToReactive
 
+
+== WebFluxメモ
+
+link:https://github.com/itoutki/webflux-sandbox[itoutki/webflux-sandbox]
+
+* Spring Initializrを使ってwebfluxのプロジェクト雛形を作る
+** link:https://blog.ik.am/entries/417[BLOG.IK.AM]
+** link:https://reasonable-code.com/curl-spring-initializr/[curlでSpring Initializrを使ったプロジェクトを作成する方法 - Reasonable Code]
+
+[source, shell]
+----
+curl https://start.spring.io/starter.tgz \
+       -d bootVersion=2.3.0.BUILD-SNAPSHOT \
+       -d artifactId=webflux-sandbox \
+       -d baseDir=webflux-sandbox \
+       -d javaVersion=14 \
+       -d dependencies=webflux \
+       -d applicationName=SandboxApplication | tar -xzvf -
+----
+
+* Fluxで徐々に値が返るようにするには
+** Server-Sent Eventまたはjson streamとして返すようにする
+** レスポンスヘッダに"Content-Type: text/event-stream;"を付与する
+** link:https://speakerdeck.com/shintanimoto/introduction-to-reactive-programming-using-spring-webflux?slide=29[業務で使いたいWebFluxによるReactiveプログラミング / Introduction to Reactive Programming using Spring WebFlux - Speaker Deck]
+
+* Server-Sent Eventとjson streamの違い
+** Server-Sent Eventの場合、Fluxのデータをdata:xxxの形で1つずつ受け取る
+** json streamの場合、Fluxのデータをjsonオブジェクトとして1つずつ受け取る
+** レスポンスの内容がjsonでない場合、json streamでは1つずつ受け取ることができず、まとめて受け取る
+***（application/jsonと同じ挙動）
+
+* POSTでエラーが出る
+** POSTリクエストを送信するときに、Content-Typeを指定しないとapplication/x-www-form-urlencodedになる
+** WebFluxの場合、application/x-www-form-urlencodedのときに、@RequestBodyでリクエストボディを受け取れない
+*** In a WebFlux application, form data is accessed via ServerWebExchange.getFormData().
+** 'Content-Type: application/json'を明示的に指定することで受け取れるようになる
+
+* curlからのテストの仕方
+
+[source, shell]
+----
+# Server-Sent Event
+curl -v -H 'Accept: text/event-stream;' http://localhost:8080/
+curl -v -H 'Accept: text/event-stream;' http://localhost:8080/texts
+curl -v -H 'Accept: text/event-stream;' http://localhost:8080/delayedtexts
+curl -v -H 'Accept: text/event-stream;' http://localhost:8080/messages
+curl -v -H 'Accept: text/event-stream;' http://localhost:8080/delayedmessages
+
+# json stream
+curl -v -H 'Accept: application/stream+json;' http://localhost:8080/
+curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
+curl -v -H 'Accept: application/stream+json;' http://localhost:8080/delayedmessages
+curl -v -H 'Accept: application/stream+json;' http://localhost:8080/texts
+curl -v -H 'Accept: application/stream+json;' http://localhost:8080/delayedtexts
+
+# POST + json stream (エラーになるケース)
+curl -v -H 'Accept: application/stream+json;' http://localhost:8080/echo -d 'hoge'
+
+# POST + json stream（正常に動くケース）
+curl -v -H 'Content-Type: application/json' -H 'Accept: application/stream+json;' http://localhost:8080/echo -d 'hoge'
+----
+
+* Flux.intervalを使って徐々に値を返すようにするパターン
+
+[source, java]
+----
+
+// zipWith と map を組み合わせるパターン
+// zipWith によって Flux<Tuple2> に変換されるので Tuple2 から値を取り出すために map を組み合わせる
+Flux.just(new Message("Hello"), new Message("World!"))
+    .zipWith(Flux.interval(Duration.ofSeconds(1L)))
+    .map(T -> T.getT1());
+
+// zipWith の第二引数にlambdaを指定することで上記と同等の処理を行う
+Flux.just(new Message("Hello"), new Message("World!"))
+    .zipWith(Flux.interval(Duration.ofSeconds(1L)), (msg, c) -> msg);
+----
+
+* parking lot
+
+** WebClientで自己証明書のHTTPS通信をできるようにする
+*** link:https://gist.github.com/rstoyanchev/83956714c5312a10dfbe9866f3f6d85d[WebClient with SSL]
+
+[source, java]
+----
+SslContext sslContext = SslContextBuilder
+        .forClient().trustManager(InsecureTrustManagerFactory.INSTANCE)
+        .build();
+HttpClient httpClient = HttpClient.create()
+        .secure(sslContextSpec -> sslContextSpec.sslContext(sslContext));
+ClientHttpConnector connector = new ReactorClientHttpConnector(httpClient);
+WebClient webClient = WebClient.builder().clientConnector(connector).build();
+
+return webClient.get()
+        .uri("https://localhost:8444/users")
+        .retrieve()
+        .bodyToFlux(String.class)
+        .log()
+        .zipWith(Flux.interval(Duration.ofSeconds(3)))
+        .map(T -> "{\"data\": \"" + T.getT1() + "\"}");
+----
