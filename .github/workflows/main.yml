@@ -26,10 +26,10 @@ jobs:
     - name: Run asciidoctor
       uses: Analog-inc/asciidoctor-action@master
       with:
-        shellCommand: "asciidoctor doc/*.adoc"
+        shellCommand: "asciidoctor doc/*.adoc -D out"
     
     - name: Save asciidoctor outputs
       uses: actions/upload-artifact@v1
       with:
         name: output
-        path: doc/*.html
+        path: out
