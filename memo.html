@@ -466,6 +466,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_webfluxメモ">3. WebFluxメモ</a></li>
+<li><a href="#_parking_lot">4. parking lot</a></li>
 </ul>
 </div>
 </div>
@@ -961,13 +962,21 @@ Flux.just(new Message("Hello"), new Message("World!"))
     .zipWith(Flux.interval(Duration.ofSeconds(1L)), (msg, c) -&gt; msg);</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p><a href="https://projectreactor.io/docs/netty/snapshot/reference/index.html">Reactor Netty Reference Guide</a></p>
-</div>
 <div class="ulist">
 <ul>
 <li>
-<p>parking lot</p>
+<p><a href="https://projectreactor.io/docs/netty/snapshot/reference/index.html">Reactor Netty Reference Guide</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-docs/src/main/java/org/springframework/boot/docs/web/reactive/function/client/ReactorNettyClientCustomizationExample.java">spring-boot/ReactorNettyClientCustomizationExample.java at master · spring-projects/spring-boot</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_parking_lot"><a class="anchor" href="#_parking_lot"></a>4. parking lot</h2>
+<div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
@@ -976,9 +985,6 @@ Flux.just(new Message("Hello"), new Message("World!"))
 <ul>
 <li>
 <p><a href="https://gist.github.com/rstoyanchev/83956714c5312a10dfbe9866f3f6d85d">WebClient with SSL</a></p>
-</li>
-</ul>
-</div>
 </li>
 </ul>
 </div>
@@ -1004,12 +1010,39 @@ return webClient.get()
         .map(T -&gt; "{\"data\": \"" + T.getT1() + "\"}");</code></pre>
 </div>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>WebClientのbodyToMonoでMismatchedInputExceptionが発生する場合の対処</p>
+<div class="ulist">
+<ul>
+<li>
+<p>原因</p>
+<div class="ulist">
+<ul>
+<li>
+<p>bodyToMonoではjacksonを使ってjsonからJavaオブジェクトにデシリアライズする</p>
+</li>
+<li>
+<p>jacksonでデシリアライズする場合、デフォルトコンストラクタまたは`@JsonCreator`を指定したコンストラクタまたはファクトリメソッドが必要</p>
+</li>
+<li>
+<p><a href="https://github.com/FasterXML/jackson-databind#annotations-using-custom-constructor">FasterXML/jackson-databind: General data-binding package for Jackson (2.x): works on streaming API (core) implementation(s)</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-04-20 02:49:24 UTC
+Last updated 2020-04-20 14:10:34 UTC
 </div>
 </div>
 </body>
