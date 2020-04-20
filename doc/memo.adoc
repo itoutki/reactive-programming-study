@@ -267,9 +267,12 @@ Flux.just(new Message("Hello"), new Message("World!"))
     .zipWith(Flux.interval(Duration.ofSeconds(1L)), (msg, c) -> msg);
 ----
 
-link:https://projectreactor.io/docs/netty/snapshot/reference/index.html[Reactor Netty Reference Guide]
+* link:https://projectreactor.io/docs/netty/snapshot/reference/index.html[Reactor Netty Reference Guide]
 
-* parking lot
+
+* link:https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-docs/src/main/java/org/springframework/boot/docs/web/reactive/function/client/ReactorNettyClientCustomizationExample.java[spring-boot/ReactorNettyClientCustomizationExample.java at master · spring-projects/spring-boot]
+
+== parking lot
 
 ** WebClientで自己証明書のHTTPS通信をできるようにする
 *** link:https://gist.github.com/rstoyanchev/83956714c5312a10dfbe9866f3f6d85d[WebClient with SSL]
@@ -292,3 +295,9 @@ return webClient.get()
         .zipWith(Flux.interval(Duration.ofSeconds(3)))
         .map(T -> "{\"data\": \"" + T.getT1() + "\"}");
 ----
+
+* WebClientのbodyToMonoでMismatchedInputExceptionが発生する場合の対処
+** 原因
+*** bodyToMonoではjacksonを使ってjsonからJavaオブジェクトにデシリアライズする
+*** jacksonでデシリアライズする場合、デフォルトコンストラクタまたは`@JsonCreator`を指定したコンストラクタまたはファクトリメソッドが必要
+*** link:https://github.com/FasterXML/jackson-databind#annotations-using-custom-constructor[FasterXML/jackson-databind: General data-binding package for Jackson (2.x): works on streaming API (core) implementation(s)]

@@ -27,6 +27,7 @@
 * link:https://qiita.com/yut_arrows/items/5c56c81b89b1e8ae4bf4[ゼロから始めるSpring WebFlux \- Qiita]
 * link:https://www.slideshare.net/makingx/reactive-web-spring-5-jjugccc-cccef3[Reactive Webアプリケーション \- そしてSpring 5へ \#jjug\_ccc \#ccc\_ef3]
 * link:https://www.youtube.com/watch?v=1F10gr2pbvQ[GOTO 2019 Reactive Spring Josh Long]
+* link:https://bufferings.hatenablog.com/entry/2018/03/27/233152[SpringBoot2のBlocking Web vs Reactive WebについてLTしてきた - Mitsuyuki.Shiiba]
 
 == RSocket関連
 * link:https://docs.google.com/presentation/d/1ygSM85-RQ3NZjCg6RaZ52mGzxbWiItVwzlCpr1vaWBw/edit?usp=sharing[RSocket徹底入門]
