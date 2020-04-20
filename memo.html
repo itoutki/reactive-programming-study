@@ -436,13 +436,42 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
 <h1>メモ</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_reactive_streams">1. Reactive Streams</a>
+<ul class="sectlevel2">
+<li><a href="#_ノンブロッキングioとブロッキングio">1.1. ノンブロッキングIOとブロッキングIO</a></li>
+<li><a href="#_非同期処理と同期処理">1.2. 非同期処理と同期処理</a></li>
+<li><a href="#_バックプレッシャー">1.3. バック・プレッシャー</a></li>
+<li><a href="#_reactive_streams_jvm">1.4. reactive-streams-jvm</a></li>
+</ul>
+</li>
+<li><a href="#_lite_rx_api_hands_on_with_reactor_core_3">2. Lite Rx API Hands-On with Reactor Core 3</a>
+<ul class="sectlevel2">
+<li><a href="#_part01_flux">2.1. Part01 Flux</a></li>
+<li><a href="#_part02_mono">2.2. Part02 Mono</a></li>
+<li><a href="#_part03_stepverifier">2.3. Part03 StepVerifier</a></li>
+<li><a href="#_part04_transform">2.4. Part04 Transform</a></li>
+<li><a href="#_part05_merge">2.5. Part05 Merge</a></li>
+<li><a href="#_part06_request">2.6. Part06 Request</a></li>
+<li><a href="#_part07_errors">2.7. Part07 Errors</a></li>
+<li><a href="#_part08_otheroperations">2.8. Part08 OtherOperations</a></li>
+<li><a href="#_part09_adapt">2.9. Part09 Adapt</a></li>
+<li><a href="#_part10_reactivetoblocking">2.10. Part10 ReactiveToBlocking</a></li>
+<li><a href="#_part11_blockingtoreactive">2.11. Part11 BlockingToReactive</a></li>
+</ul>
+</li>
+<li><a href="#_webfluxメモ">3. WebFluxメモ</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_reactive_streams">Reactive Streams</h2>
+<h2 id="_reactive_streams"><a class="anchor" href="#_reactive_streams"></a>1. Reactive Streams</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>ノンブロッキングIOでバックプレッシャーを備えた非同期ストリーム処理の標準。<br>
@@ -450,7 +479,7 @@ JVM向け、JS向けのインタフェース定義（reactive-streams-jvm、reac
 およびネットワークプロトコル（reactive-streams-io）がある。<br></p>
 </div>
 <div class="sect2">
-<h3 id="_ノンブロッキングioとブロッキングio">ノンブロッキングIOとブロッキングIO</h3>
+<h3 id="_ノンブロッキングioとブロッキングio"><a class="anchor" href="#_ノンブロッキングioとブロッキングio"></a>1.1. ノンブロッキングIOとブロッキングIO</h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">ブロッキングIO</dt>
@@ -465,7 +494,7 @@ JVM向け、JS向けのインタフェース定義（reactive-streams-jvm、reac
 </div>
 </div>
 <div class="sect2">
-<h3 id="_非同期処理と同期処理">非同期処理と同期処理</h3>
+<h3 id="_非同期処理と同期処理"><a class="anchor" href="#_非同期処理と同期処理"></a>1.2. 非同期処理と同期処理</h3>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">同期処理</dt>
@@ -480,7 +509,7 @@ JVM向け、JS向けのインタフェース定義（reactive-streams-jvm、reac
 </div>
 </div>
 <div class="sect2">
-<h3 id="_バックプレッシャー">バック・プレッシャー</h3>
+<h3 id="_バックプレッシャー"><a class="anchor" href="#_バックプレッシャー"></a>1.3. バック・プレッシャー</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -490,7 +519,7 @@ JVM向け、JS向けのインタフェース定義（reactive-streams-jvm、reac
 </div>
 </div>
 <div class="sect2">
-<h3 id="_reactive_streams_jvm">reactive-streams-jvm</h3>
+<h3 id="_reactive_streams_jvm"><a class="anchor" href="#_reactive_streams_jvm"></a>1.4. reactive-streams-jvm</h3>
 <div class="paragraph">
 <p>4つのインタフェースと各インタフェースが従うべき仕様が定義されている。</p>
 </div>
@@ -622,7 +651,7 @@ JVM向け、JS向けのインタフェース定義（reactive-streams-jvm、reac
 </div>
 </div>
 <div class="sect1">
-<h2 id="_lite_rx_api_hands_on_with_reactor_core_3">Lite Rx API Hands-On with Reactor Core 3</h2>
+<h2 id="_lite_rx_api_hands_on_with_reactor_core_3"><a class="anchor" href="#_lite_rx_api_hands_on_with_reactor_core_3"></a>2. Lite Rx API Hands-On with Reactor Core 3</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -632,7 +661,7 @@ JVM向け、JS向けのインタフェース定義（reactive-streams-jvm、reac
 </ul>
 </div>
 <div class="sect2">
-<h3 id="_part01_flux">Part01 Flux</h3>
+<h3 id="_part01_flux"><a class="anchor" href="#_part01_flux"></a>2.1. Part01 Flux</h3>
 <div class="paragraph">
 <p>Reactor Coreの主要要素である、 Fluxの生成方法について。<br>
 そもそもFluxとは、Reactor CoreにおけるPublisherの実装の1つである。<br>
@@ -674,7 +703,7 @@ Reactive Streamsでいう所のonErrorで例外をSubscriberに通知する。</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_part02_mono">Part02 Mono</h3>
+<h3 id="_part02_mono"><a class="anchor" href="#_part02_mono"></a>2.2. Part02 Mono</h3>
 <div class="paragraph">
 <p>Reactor Coreの主要要素である、 Monoの生成方法について。<br>
 そもそもMonoとは、Reactor CoreにおけるPublisherの実装の1つである。<br>
@@ -707,13 +736,13 @@ Reactive Streamsでいう所のonErrorで例外をSubscriberに通知する。</
 </div>
 </div>
 <div class="sect2">
-<h3 id="_part03_stepverifier">Part03 StepVerifier</h3>
+<h3 id="_part03_stepverifier"><a class="anchor" href="#_part03_stepverifier"></a>2.3. Part03 StepVerifier</h3>
 <div class="paragraph">
 <p>FluxやMonoをテストするためのクラスであるStepVerifierの使い方について。<br>
 FluxやMonoを返すメソッドのユニットテストを行う場合には必須のクラスだと思われる。</p>
 </div>
 <div class="sect3">
-<h4 id="_よくある使い方">よくある使い方</h4>
+<h4 id="_よくある使い方"><a class="anchor" href="#_よくある使い方"></a>2.3.1. よくある使い方</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -759,41 +788,41 @@ FluxやMonoを返すメソッドのユニットテストを行う場合には必
 </div>
 </div>
 <div class="sect2">
-<h3 id="_part04_transform">Part04 Transform</h3>
+<h3 id="_part04_transform"><a class="anchor" href="#_part04_transform"></a>2.4. Part04 Transform</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_part05_merge">Part05 Merge</h3>
+<h3 id="_part05_merge"><a class="anchor" href="#_part05_merge"></a>2.5. Part05 Merge</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_part06_request">Part06 Request</h3>
+<h3 id="_part06_request"><a class="anchor" href="#_part06_request"></a>2.6. Part06 Request</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_part07_errors">Part07 Errors</h3>
+<h3 id="_part07_errors"><a class="anchor" href="#_part07_errors"></a>2.7. Part07 Errors</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_part08_otheroperations">Part08 OtherOperations</h3>
+<h3 id="_part08_otheroperations"><a class="anchor" href="#_part08_otheroperations"></a>2.8. Part08 OtherOperations</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_part09_adapt">Part09 Adapt</h3>
+<h3 id="_part09_adapt"><a class="anchor" href="#_part09_adapt"></a>2.9. Part09 Adapt</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_part10_reactivetoblocking">Part10 ReactiveToBlocking</h3>
+<h3 id="_part10_reactivetoblocking"><a class="anchor" href="#_part10_reactivetoblocking"></a>2.10. Part10 ReactiveToBlocking</h3>
 
 </div>
 <div class="sect2">
-<h3 id="_part11_blockingtoreactive">Part11 BlockingToReactive</h3>
+<h3 id="_part11_blockingtoreactive"><a class="anchor" href="#_part11_blockingtoreactive"></a>2.11. Part11 BlockingToReactive</h3>
 
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_webfluxメモ">WebFluxメモ</h2>
+<h2 id="_webfluxメモ"><a class="anchor" href="#_webfluxメモ"></a>3. WebFluxメモ</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p><a href="https://github.com/itoutki/webflux-sandbox">itoutki/webflux-sandbox</a></p>
@@ -932,6 +961,9 @@ Flux.just(new Message("Hello"), new Message("World!"))
     .zipWith(Flux.interval(Duration.ofSeconds(1L)), (msg, c) -&gt; msg);</code></pre>
 </div>
 </div>
+<div class="paragraph">
+<p><a href="https://projectreactor.io/docs/netty/snapshot/reference/index.html">Reactor Netty Reference Guide</a></p>
+</div>
 <div class="ulist">
 <ul>
 <li>
@@ -977,7 +1009,7 @@ return webClient.get()
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-04-20 02:19:44 UTC
+Last updated 2020-04-20 02:27:51 UTC
 </div>
 </div>
 </body>
