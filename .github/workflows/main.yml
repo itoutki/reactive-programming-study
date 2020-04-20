@@ -27,3 +27,9 @@ jobs:
       uses: Analog-inc/asciidoctor-action@master
       with:
         shellCommand: "asciidoctor doc/memo.adoc"
+    
+    - name: Save asciidoctor outputs
+      uses: actions/upload-artifact@v1
+      with:
+        name: output
+        path: doc/memo.html
