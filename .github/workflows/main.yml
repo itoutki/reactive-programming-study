@@ -29,7 +29,9 @@ jobs:
         shellCommand: "asciidoctor doc/*.adoc -D out"
     
     - name: Copy resources
-      run: cp -r doc/images out/
+      run: |
+        ls -la out/
+        cp -r doc/images out/
     
     - name: Publish gh-pages
       uses: peaceiris/actions-gh-pages@v3
