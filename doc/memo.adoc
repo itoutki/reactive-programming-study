@@ -1,3 +1,10 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+
 = メモ
 
 == Reactive Streams
@@ -259,6 +266,8 @@ Flux.just(new Message("Hello"), new Message("World!"))
 Flux.just(new Message("Hello"), new Message("World!"))
     .zipWith(Flux.interval(Duration.ofSeconds(1L)), (msg, c) -> msg);
 ----
+
+link:https://projectreactor.io/docs/netty/snapshot/reference/index.html[Reactor Netty Reference Guide]
 
 * parking lot
 
