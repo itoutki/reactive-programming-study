@@ -1,3 +1,3 @@
 = README
 
-link:https://itoutki.github.io/reactive-programming-study/
+link:https://itoutki.github.io/reactive-programming-study/[]

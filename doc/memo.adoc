@@ -4,6 +4,7 @@
 :sectanchors:
 :sectinks:
 :chapter-label:
+:source-highlighter: coderay
 
 = メモ
 
@@ -272,6 +273,93 @@ Flux.just(new Message("Hello"), new Message("World!"))
 
 * link:https://github.com/spring-projects/spring-boot/blob/master/spring-boot-project/spring-boot-docs/src/main/java/org/springframework/boot/docs/web/reactive/function/client/ReactorNettyClientCustomizationExample.java[spring-boot/ReactorNettyClientCustomizationExample.java at master · spring-projects/spring-boot]
 
+
+== Spring WebFlux WebClient
+
+* 検証項目
+** GET
+** POST
+** Header
+** Cookie
+** HTTPS
+** event stream、stream json形式のAPIからの取得（GET・POST）
+** 直列実行
+** 並列実行
+** リトライ
+** キャッシュ
+** エラーハンドリング
+*** ステータスコードごとのハンドリング
+*** タイムアウト時のハンドリング
+*** エラーハンドリングとリトライの組み合わせ
+** 通信タイムアウト
+** テスト
+
+=== GETリクエスト
+
+* 通常のGET
+* クエリストリング
+
+[source, java]
+----
+
+// Mono(String) API -> bodyToMono OK
+@GetMapping("/gettext")
+public Mono<String> getText() {
+    return webClient.get()
+            .uri("http://localhost:8080/text")
+            .retrieve()
+            .bodyToMono(String.class);
+}
+
+// Mono(object) API -> bodyToMono OK
+@GetMapping("/getmessagemono")
+public Mono<Message> getMessageMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/message")
+            .retrieve()
+            .bodyToMono(Message.class);
+}
+
+// Mono(object) API -> bodyToFlux OK
+@GetMapping("/getmessageflux")
+public Flux<Message> getMessageFlux() {
+    return webClient.get()
+            .uri("http://localhost:8080/message")
+            .retrieve()
+            .bodyToFlux(Message.class);
+}
+
+// Flux(array) API  -> bodyToMono NG
+// array型のレスポンスをMessageオブジェクトに変換できないため
+@GetMapping("/getmessagesmono")
+public Mono<Message> getMessagesMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToMono(Message.class);
+}
+
+// Flux(array) API  -> bodyToMono
+// ParameterizedTypeReferenceを使うことで無理やり実現することはできる
+// ただし返ってくるのはMessage型ではなくList<Message>型
+@GetMapping("/getmessagesmono")
+public Mono<ArrayList<Message>> getMessagesMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToMono(new ParameterizedTypeReference<ArrayList<Message>>() {});
+}
+
+// Flux(array) API  -> bodyToFlux OK
+@GetMapping("/getmessagesflux")
+public Flux<Message> getMessagesFlux() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToFlux(Message.class);
+}
+----
+
 == parking lot
 
 ** WebClientで自己証明書のHTTPS通信をできるようにする
@@ -301,3 +389,32 @@ return webClient.get()
 *** bodyToMonoではjacksonを使ってjsonからJavaオブジェクトにデシリアライズする
 *** jacksonでデシリアライズする場合、デフォルトコンストラクタまたは`@JsonCreator`を指定したコンストラクタまたはファクトリメソッドが必要
 *** link:https://github.com/FasterXML/jackson-databind#annotations-using-custom-constructor[FasterXML/jackson-databind: General data-binding package for Jackson (2.x): works on streaming API (core) implementation(s)]
+
+* Fluxを返すAPIにおける、コンテンツタイプごとのレスポンスフォーマットの違い
+** application/jsonの場合
+*** array形式
+*** 全てのデータがまとめて返ってくる
+** text/event-streamの場合
+*** data:XXXの形式
+*** データは1つずつ返ってくる
+** application/stream+jsonの場合
+*** 個々のjson形式
+*** データは1つずつ返ってくる
+
+[source, shell]
+----
+$ curl -v -H 'Accept: application/json;' http://localhost:8080/messages
+[{"message":"Hello"},{"message":"World!"}]
+
+
+$ curl -v -H 'Accept: text/event-stream;' http://localhost:8080/messages
+data:{"message":"Hello"}
+
+data:{"message":"World!"}
+
+
+$ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
+{"message":"Hello"}
+{"message":"World!"}
+
+----
