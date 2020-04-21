@@ -471,7 +471,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_getリクエスト">4.1. GETリクエスト</a></li>
 </ul>
 </li>
-<li><a href="#_parking_lot">5. parking lot</a></li>
+<li><a href="#_github_actionsでasciidocからgithub_pagesを生成">5. GitHub ActionsでasciidocからGitHub Pagesを生成</a></li>
+<li><a href="#_parking_lot">6. parking lot</a>
+<ul class="sectlevel2">
+<li><a href="#_マイクロサービスのサンプル実装">6.1. マイクロサービスのサンプル実装</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
@@ -1121,7 +1126,55 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 </div>
 </div>
 <div class="sect1">
-<h2 id="_parking_lot"><a class="anchor" href="#_parking_lot"></a>5. parking lot</h2>
+<h2 id="_github_actionsでasciidocからgithub_pagesを生成"><a class="anchor" href="#_github_actionsでasciidocからgithub_pagesを生成"></a>5. GitHub ActionsでasciidocからGitHub Pagesを生成</h2>
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="comment"># This is a basic workflow to help you get started with Actions</span>
+
+<span class="key">name</span>: <span class="string"><span class="content">CI</span></span>
+
+<span class="comment"># Controls when the action will run. Triggers the workflow on push or pull request</span>
+<span class="comment"># events but only for the master branch</span>
+<span class="key">on</span>:
+  <span class="key">push</span>:
+    <span class="key">branches</span>: <span class="string"><span class="content">[ master ]</span></span>
+  <span class="key">pull_request</span>:
+    <span class="key">branches</span>: <span class="string"><span class="content">[ master ]</span></span>
+
+<span class="comment"># A workflow run is made up of one or more jobs that can run sequentially or in parallel</span>
+<span class="key">jobs</span>:
+  <span class="comment"># This workflow contains a single job called &quot;build&quot;</span>
+  <span class="key">build</span>:
+    <span class="comment"># The type of runner that the job will run on</span>
+    <span class="key">runs-on</span>: <span class="string"><span class="content">ubuntu-latest</span></span>
+
+    <span class="comment"># Steps represent a sequence of tasks that will be executed as part of the job</span>
+    <span class="key">steps</span>:
+    <span class="comment"># Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it</span>
+    - <span class="string"><span class="content">uses: actions/checkout@v2</span></span>
+
+    <span class="comment"># Runs a single command using the runners shell</span>
+    - <span class="string"><span class="content">name: Run asciidoctor</span></span>
+      <span class="key">uses</span>: <span class="string"><span class="content">Analog-inc/asciidoctor-action@master</span></span>
+      <span class="key">with</span>:
+        <span class="key">shellCommand</span>: <span class="string"><span class="delimiter">&quot;</span><span class="content">asciidoctor doc/*.adoc -D out</span><span class="delimiter">&quot;</span></span>
+
+    - <span class="string"><span class="content">name: Copy resources</span></span>
+      <span class="key">run</span>: <span class="string"><span class="delimiter">|</span><span class="content">
+        sudo cp -r doc/images out/</span></span>
+
+    - <span class="string"><span class="content">name: Publish gh-pages</span></span>
+      <span class="key">uses</span>: <span class="string"><span class="content">peaceiris/actions-gh-pages@v3</span></span>
+      <span class="key">with</span>:
+        <span class="key">github_token</span>: <span class="string"><span class="content">${{ secrets.GITHUB_TOKEN }}</span></span>
+        <span class="key">publish_dir</span>: <span class="string"><span class="content">out</span></span></code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_parking_lot"><a class="anchor" href="#_parking_lot"></a>6. parking lot</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -1246,12 +1299,37 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 {&quot;message&quot;:&quot;World!&quot;}</code></pre>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_マイクロサービスのサンプル実装"><a class="anchor" href="#_マイクロサービスのサンプル実装"></a>6.1. マイクロサービスのサンプル実装</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>ECサイト</p>
+</li>
+<li>
+<p>フリマサイト</p>
+</li>
+<li>
+<p>チャット</p>
+</li>
+<li>
+<p>プロジェクト管理ツール</p>
+</li>
+<li>
+<p>個人間送金アプリ</p>
+</li>
+<li>
+<p>ツアー予約システム</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-04-21 01:53:09 UTC
+Last updated 2020-04-21 02:39:55 UTC
 </div>
 </div>
 <style>
