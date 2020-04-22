@@ -475,6 +475,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_parking_lot">6. parking lot</a>
 <ul class="sectlevel2">
 <li><a href="#_マイクロサービスのサンプル実装">6.1. マイクロサービスのサンプル実装</a></li>
+<li><a href="#_prometheus">6.2. prometheus</a></li>
+<li><a href="#_reactor_nettyにおけるコネクションプール">6.3. reactor-nettyにおけるコネクションプール</a></li>
 </ul>
 </li>
 </ul>
@@ -1045,6 +1047,9 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 <li>
 <p>テスト</p>
 </li>
+<li>
+<p>コネクションプール</p>
+</li>
 </ul>
 </div>
 </li>
@@ -1324,12 +1329,43 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_prometheus"><a class="anchor" href="#_prometheus"></a>6.2. prometheus</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="shell">docker run -p 9090:9090 -v ${PWD}/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.slideshare.net/makingx/spring-boot-actuator-20-micrometer">Spring Boot Actuator 2.0 &amp; Micrometer</a></p>
+</li>
+<li>
+<p><a href="https://qiita.com/AHA_oretama/items/01040d5277cd64c5d6b2">Spring Boot 2.0 でモニタリング 〜Micrometer〜 - Qiita</a></p>
+</li>
+<li>
+<p><a href="https://projectreactor.io/docs/netty/release/api/reactor/netty/http/client/HttpClient.html#metrics-boolean-">HttpClient (Reactor Netty 0.9.6.RELEASE)</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_reactor_nettyにおけるコネクションプール"><a class="anchor" href="#_reactor_nettyにおけるコネクションプール"></a>6.3. reactor-nettyにおけるコネクションプール</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://projectreactor.io/docs/netty/snapshot/reference/index.html#_connection_pool">Reactor Netty Reference Guide</a></p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-04-21 02:39:55 UTC
+Last updated 2020-04-22 15:10:29 UTC
 </div>
 </div>
 <style>
