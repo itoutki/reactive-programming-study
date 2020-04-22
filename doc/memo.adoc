@@ -293,6 +293,7 @@ Flux.just(new Message("Hello"), new Message("World!"))
 *** エラーハンドリングとリトライの組み合わせ
 ** 通信タイムアウト
 ** テスト
+** コネクションプール
 
 === GETリクエスト
 
@@ -473,3 +474,18 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 * 個人間送金アプリ
 * ツアー予約システム
 
+=== prometheus
+
+[source, shell]
+----
+docker run -p 9090:9090 -v ${PWD}/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest
+----
+
+* link:https://www.slideshare.net/makingx/spring-boot-actuator-20-micrometer[Spring Boot Actuator 2.0 & Micrometer]
+* link:https://qiita.com/AHA_oretama/items/01040d5277cd64c5d6b2[Spring Boot 2.0 でモニタリング 〜Micrometer〜 - Qiita]
+* link:https://projectreactor.io/docs/netty/release/api/reactor/netty/http/client/HttpClient.html#metrics-boolean-[HttpClient (Reactor Netty 0.9.6.RELEASE)]
+
+
+=== reactor-nettyにおけるコネクションプール
+
+* link:https://projectreactor.io/docs/netty/snapshot/reference/index.html#_connection_pool[Reactor Netty Reference Guide]
