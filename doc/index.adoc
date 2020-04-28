@@ -7,5 +7,10 @@
 
 = Reactive Programming Study
 
+== memo
+
 * link:memo.html[メモ]
+
+== 参考資料
+
 * link:references.html[参考資料]

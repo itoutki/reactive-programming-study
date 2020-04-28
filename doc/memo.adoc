@@ -277,28 +277,37 @@ Flux.just(new Message("Hello"), new Message("World!"))
 == Spring WebFlux WebClient
 
 * 検証項目
-** GET
-** POST
-** Header
-** Cookie
-** HTTPS
-** event stream、stream json形式のAPIからの取得（GET・POST）
+** GET ok
+** POST ok
+*** application/x-www-form-urlencoded ok
+*** application/json ok
+*** applicaiton/stream+json ok
+*** multipart (file upload) ok
+** Header ok
+** Cookie ok
+** HTTPS ok
+** event stream、stream json形式のAPIからの取得（GET・POST）ok
 ** 直列実行
 ** 並列実行
-** リトライ
+** リトライ ok
+*** Reactor Core 3.3.3.RELEASEまではReactor ExtraのRetryを使っていた
+*** 3.3.4.RELEASEからReactor Core側にRetryが実装された
 ** キャッシュ
-** エラーハンドリング
+** エラーハンドリング ok
 *** ステータスコードごとのハンドリング
 *** タイムアウト時のハンドリング
 *** エラーハンドリングとリトライの組み合わせ
-** 通信タイムアウト
+** 通信タイムアウト ok
 ** テスト
 ** コネクションプール
+** リダイレクト
 
 === GETリクエスト
 
 * 通常のGET
 * クエリストリング
+* event stream
+* jsteam json
 
 [source, java]
 ----
@@ -360,6 +369,11 @@ public Flux<Message> getMessagesFlux() {
             .bodyToFlux(Message.class);
 }
 ----
+
+=== POST
+
+
+
 
 == GitHub ActionsでasciidocからGitHub Pagesを生成
 
