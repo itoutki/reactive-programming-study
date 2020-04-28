@@ -469,6 +469,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_spring_webflux_webclient">4. Spring WebFlux WebClient</a>
 <ul class="sectlevel2">
 <li><a href="#_getリクエスト">4.1. GETリクエスト</a></li>
+<li><a href="#_post">4.2. POST</a></li>
 </ul>
 </li>
 <li><a href="#_github_actionsでasciidocからgithub_pagesを生成">5. GitHub ActionsでasciidocからGitHub Pagesを生成</a></li>
@@ -996,22 +997,38 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 <div class="ulist">
 <ul>
 <li>
-<p>GET</p>
+<p>GET ok</p>
 </li>
 <li>
-<p>POST</p>
+<p>POST ok</p>
+<div class="ulist">
+<ul>
+<li>
+<p>application/x-www-form-urlencoded ok</p>
 </li>
 <li>
-<p>Header</p>
+<p>application/json ok</p>
 </li>
 <li>
-<p>Cookie</p>
+<p>applicaiton/stream+json ok</p>
 </li>
 <li>
-<p>HTTPS</p>
+<p>multipart (file upload) ok</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p>event stream、stream json形式のAPIからの取得（GET・POST）</p>
+<p>Header ok</p>
+</li>
+<li>
+<p>Cookie ok</p>
+</li>
+<li>
+<p>HTTPS ok</p>
+</li>
+<li>
+<p>event stream、stream json形式のAPIからの取得（GET・POST）ok</p>
 </li>
 <li>
 <p>直列実行</p>
@@ -1020,13 +1037,23 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 <p>並列実行</p>
 </li>
 <li>
-<p>リトライ</p>
+<p>リトライ ok</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Reactor Core 3.3.3.RELEASEまではReactor ExtraのRetryを使っていた</p>
+</li>
+<li>
+<p>3.3.4.RELEASEからReactor Core側にRetryが実装された</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>キャッシュ</p>
 </li>
 <li>
-<p>エラーハンドリング</p>
+<p>エラーハンドリング ok</p>
 <div class="ulist">
 <ul>
 <li>
@@ -1042,13 +1069,16 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 </div>
 </li>
 <li>
-<p>通信タイムアウト</p>
+<p>通信タイムアウト ok</p>
 </li>
 <li>
 <p>テスト</p>
 </li>
 <li>
 <p>コネクションプール</p>
+</li>
+<li>
+<p>リダイレクト</p>
 </li>
 </ul>
 </div>
@@ -1064,6 +1094,12 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 </li>
 <li>
 <p>クエリストリング</p>
+</li>
+<li>
+<p>event stream</p>
+</li>
+<li>
+<p>jsteam json</p>
 </li>
 </ul>
 </div>
@@ -1127,6 +1163,10 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 }</code></pre>
 </div>
 </div>
+</div>
+<div class="sect2">
+<h3 id="_post"><a class="anchor" href="#_post"></a>4.2. POST</h3>
+
 </div>
 </div>
 </div>
@@ -1365,7 +1405,7 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-04-22 15:10:29 UTC
+Last updated 2020-04-28 06:21:44 UTC
 </div>
 </div>
 <style>
