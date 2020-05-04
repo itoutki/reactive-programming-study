@@ -478,6 +478,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_マイクロサービスのサンプル実装">6.1. マイクロサービスのサンプル実装</a></li>
 <li><a href="#_prometheus">6.2. prometheus</a></li>
 <li><a href="#_reactor_nettyにおけるコネクションプール">6.3. reactor-nettyにおけるコネクションプール</a></li>
+<li><a href="#_spring_bootweb_mvcの中でwebclientを使いたい場合">6.4. Spring Boot(Web MVC)の中でWebClientを使いたい場合</a></li>
 </ul>
 </li>
 </ul>
@@ -1166,7 +1167,9 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 </div>
 <div class="sect2">
 <h3 id="_post"><a class="anchor" href="#_post"></a>4.2. POST</h3>
-
+<div class="paragraph">
+<p>Unresolved directive in memo.adoc - include::webclient.adoc[]</p>
+</div>
 </div>
 </div>
 </div>
@@ -1400,12 +1403,67 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_spring_bootweb_mvcの中でwebclientを使いたい場合"><a class="anchor" href="#_spring_bootweb_mvcの中でwebclientを使いたい場合"></a>6.4. Spring Boot(Web MVC)の中でWebClientを使いたい場合</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>spring-boot-starter-webとspring-boot-starter-webfluxを依存関係に追加する</p>
+</li>
+<li>
+<p>両方が依存関係に存在する場合、Web MVCのauto configurationが行われる。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux">Spring Boot Reference Documentation</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Spring Bootでは、WebClient.Builder、ReactorResourceFactory、ReactorClientHttpConnectorをBeanとして登録している。(WebClientAutoConfiguration.java、ClientHttpConnectorConfiguration.java)</p>
+</li>
+<li>
+<p>また、WebClientをカスタマイズする仕組みとしてWebClientCustomizerを用意しており、 WebClientCustomizerをBeanに登録することでWebClientをカスタマイズできるようになっている。</p>
+</li>
+<li>
+<p>そのため、WebClientを独自にBean定義してしまうと、WebClientCustomizerによるカスタマイズが行われない。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient</p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java">spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>2.3.0.RC1からReactorNettyHttpClientMapperクラスが用意され、HttpClientをカスタマイズする手段が提供されるようになった。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java">spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-04-28 06:21:44 UTC
+Last updated 2020-05-04 15:46:35 UTC
 </div>
 </div>
 <style>
