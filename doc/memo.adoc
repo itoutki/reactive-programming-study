@@ -373,7 +373,7 @@ public Flux<Message> getMessagesFlux() {
 === POST
 
 
-
+include::webclient.adoc[]
 
 == GitHub ActionsでasciidocからGitHub Pagesを生成
 
@@ -503,3 +503,20 @@ docker run -p 9090:9090 -v ${PWD}/docker/prometheus/prometheus.yml:/etc/promethe
 === reactor-nettyにおけるコネクションプール
 
 * link:https://projectreactor.io/docs/netty/snapshot/reference/index.html#_connection_pool[Reactor Netty Reference Guide]
+
+
+=== Spring Boot(Web MVC)の中でWebClientを使いたい場合
+
+* spring-boot-starter-webとspring-boot-starter-webfluxを依存関係に追加する
+* 両方が依存関係に存在する場合、Web MVCのauto configurationが行われる。
+** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux[Spring Boot Reference Documentation]
+* Spring Bootでは、WebClient.Builder、ReactorResourceFactory、ReactorClientHttpConnectorをBeanとして登録している。(WebClientAutoConfiguration.java、ClientHttpConnectorConfiguration.java)
+* また、WebClientをカスタマイズする仕組みとしてWebClientCustomizerを用意しており、 WebClientCustomizerをBeanに登録することでWebClientをカスタマイズできるようになっている。
+* そのため、WebClientを独自にBean定義してしまうと、WebClientCustomizerによるカスタマイズが行われない。
+** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java[spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java[spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
+
+* 2.3.0.RC1からReactorNettyHttpClientMapperクラスが用意され、HttpClientをカスタマイズする手段が提供されるようになった。
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java[spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.RC1 · spring-projects/spring-boot]
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java[spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot]

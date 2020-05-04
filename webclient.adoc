@@ -1,0 +1,97 @@
+== WebClient
+
+=== 基本的な使い方（with Spring Boot)
+
+==== プロジェクトのセットアップ
+
+* `spring-boot-starter-webflux`を依存関係に加える。
+
+==== WebClientのセットアップ
+
+* `WebClient`を使用するコンポーネントでDIによって`WebClient.Builder`を受け取る。
+** `WebClient.Builder`はSpring Bootによってbean定義されている。
+* `WebClient.Builder#build()`メソッドを使用し、`WebClient`インスタンスを得る。
+
+
+==== GETリクエスト
+
+* `webClient.get()`メソッドによってGETメソッドであることを指定する
+* `uri()`メソッドによってリクエスト先のURLを指定する
+* `retrive()`メソッドによってレスポンスを得る
+* `bodyToMono()`、`bodyToFlux()`メソッドによってレスポンスを`Mono`、`Flux`に変換する
+
+[source, java]
+----
+@Component
+public class WebClientSample {
+    private final WebClient webClient;
+
+    public WebClientSample(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+
+    public Mono<String> getRequest() {
+        return webClient.get()
+            .uri("http://localhost:8080/text")
+            .retrive()
+            .bodyToMono(String.class);
+    }
+
+    public Mono<String> postRequest() {
+        return webClient.post()
+            .uri("http://localhost:8080/echo")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just("hello post request"), String.class)
+            .retrive()
+            .bodyToMono(String.class);
+    }
+}
+----
+
+==== POSTリクエスト
+
+* `webClient.post()`メソッドによってPOSTメソッドであることを指定する
+* `uri()`メソッドによってリクエスト先のURLを指定する
+* `contentType()`メソッドによってリクエストボディのコンテンツタイプを指定する
+** 未指定の場合、`application/x-www-form-urlencoded`と解釈される
+* `body()`メソッド等によってリクエストボディをセットする
+* `retrive()`メソッドによってレスポンスを得る
+* `bodyToMono()`、`bodyToFlux()`メソッドによってレスポンスを`Mono`、`Flux`に変換する
+
+=== POSTリクエストにおけるリクエストボディの指定方法
+
+* `body()`
+* `bodyValue()`
+* `MultiValueMap`
+* `BodyInserter`
+* `MultiPartBodyBuilder`
+
+=== リクエストのカスタマイズ
+
+* Acceptヘッダの追加
+* ヘッダの追加
+* Cookieの追加
+
+
+=== WebClientのカスタマイズ
+
+* ベースURLの指定
+* デフォルトヘッダの指定
+* デフォルトCookieの指定
+* タイムアウトの指定
+
+
+=== Spring BootにおけるWebClient関連のauto configuration
+
+** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java[spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java[spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
+
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java[spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.RC1 · spring-projects/spring-boot]
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java[spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot]
+
+=== Spring Boot(Web MVC)の中でWebClientを使用する方法
+** spring-boot-starter-webとspring-boot-starter-webfluxを依存関係に加える。
+** webとwebfluxの両方が依存関係に存在する場合、アプリケーションはwebとしての設定が優先される。
+** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux[Spring Boot Reference Documentation]
+
