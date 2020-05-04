@@ -472,13 +472,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_post">4.2. POST</a></li>
 </ul>
 </li>
-<li><a href="#_github_actionsでasciidocからgithub_pagesを生成">5. GitHub ActionsでasciidocからGitHub Pagesを生成</a></li>
-<li><a href="#_parking_lot">6. parking lot</a>
+<li><a href="#_webclient">5. WebClient</a>
 <ul class="sectlevel2">
-<li><a href="#_マイクロサービスのサンプル実装">6.1. マイクロサービスのサンプル実装</a></li>
-<li><a href="#_prometheus">6.2. prometheus</a></li>
-<li><a href="#_reactor_nettyにおけるコネクションプール">6.3. reactor-nettyにおけるコネクションプール</a></li>
-<li><a href="#_spring_bootweb_mvcの中でwebclientを使いたい場合">6.4. Spring Boot(Web MVC)の中でWebClientを使いたい場合</a></li>
+<li><a href="#_基本的な使い方with_spring_boot">5.1. 基本的な使い方（with Spring Boot)</a></li>
+<li><a href="#_postリクエストにおけるリクエストボディの指定方法">5.2. POSTリクエストにおけるリクエストボディの指定方法</a></li>
+<li><a href="#_リクエストのカスタマイズ">5.3. リクエストのカスタマイズ</a></li>
+<li><a href="#_webclientのカスタマイズ">5.4. WebClientのカスタマイズ</a></li>
+<li><a href="#_spring_bootにおけるwebclient関連のauto_configuration">5.5. Spring BootにおけるWebClient関連のauto configuration</a></li>
+<li><a href="#_spring_bootweb_mvcの中でwebclientを使用する方法">5.6. Spring Boot(Web MVC)の中でWebClientを使用する方法</a></li>
+</ul>
+</li>
+<li><a href="#_github_actionsでasciidocからgithub_pagesを生成">6. GitHub ActionsでasciidocからGitHub Pagesを生成</a></li>
+<li><a href="#_parking_lot">7. parking lot</a>
+<ul class="sectlevel2">
+<li><a href="#_マイクロサービスのサンプル実装">7.1. マイクロサービスのサンプル実装</a></li>
+<li><a href="#_prometheus">7.2. prometheus</a></li>
+<li><a href="#_reactor_nettyにおけるコネクションプール">7.3. reactor-nettyにおけるコネクションプール</a></li>
+<li><a href="#_spring_bootweb_mvcの中でwebclientを使いたい場合">7.4. Spring Boot(Web MVC)の中でWebClientを使いたい場合</a></li>
 </ul>
 </li>
 </ul>
@@ -1167,14 +1177,224 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 </div>
 <div class="sect2">
 <h3 id="_post"><a class="anchor" href="#_post"></a>4.2. POST</h3>
-<div class="paragraph">
-<p>Unresolved directive in memo.adoc - include::webclient.adoc[]</p>
+
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_webclient"><a class="anchor" href="#_webclient"></a>5. WebClient</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_基本的な使い方with_spring_boot"><a class="anchor" href="#_基本的な使い方with_spring_boot"></a>5.1. 基本的な使い方（with Spring Boot)</h3>
+<div class="sect3">
+<h4 id="_プロジェクトのセットアップ"><a class="anchor" href="#_プロジェクトのセットアップ"></a>5.1.1. プロジェクトのセットアップ</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>`spring-boot-starter-webflux`を依存関係に加える。</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_webclientのセットアップ"><a class="anchor" href="#_webclientのセットアップ"></a>5.1.2. WebClientのセットアップ</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>`WebClient`を使用するコンポーネントでDIによって`WebClient.Builder`を受け取る。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>`WebClient.Builder`はSpring Bootによってbean定義されている。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>`WebClient.Builder#build()`メソッドを使用し、`WebClient`インスタンスを得る。</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_getリクエスト_2"><a class="anchor" href="#_getリクエスト_2"></a>5.1.3. GETリクエスト</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>`webClient.get()`メソッドによってGETメソッドであることを指定する</p>
+</li>
+<li>
+<p>`uri()`メソッドによってリクエスト先のURLを指定する</p>
+</li>
+<li>
+<p>`retrive()`メソッドによってレスポンスを得る</p>
+</li>
+<li>
+<p><code>bodyToMono()</code>、<code>bodyToFlux()`メソッドによってレスポンスを`Mono</code>、`Flux`に変換する</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="annotation">@Component</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">WebClientSample</span> {
+    <span class="directive">private</span> <span class="directive">final</span> WebClient webClient;
+
+    <span class="directive">public</span> WebClientSample(WebClient.Builder webClientBuilder) {
+        <span class="local-variable">this</span>.webClient = webClientBuilder.build();
+    }
+
+    <span class="directive">public</span> Mono&lt;<span class="predefined-type">String</span>&gt; getRequest() {
+        <span class="keyword">return</span> webClient.get()
+            .uri(<span class="string"><span class="delimiter">&quot;</span><span class="content">http://localhost:8080/text</span><span class="delimiter">&quot;</span></span>)
+            .retrive()
+            .bodyToMono(<span class="predefined-type">String</span>.class);
+    }
+
+    <span class="directive">public</span> Mono&lt;<span class="predefined-type">String</span>&gt; postRequest() {
+        <span class="keyword">return</span> webClient.post()
+            .uri(<span class="string"><span class="delimiter">&quot;</span><span class="content">http://localhost:8080/echo</span><span class="delimiter">&quot;</span></span>)
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just(<span class="string"><span class="delimiter">&quot;</span><span class="content">hello post request</span><span class="delimiter">&quot;</span></span>), <span class="predefined-type">String</span>.class)
+            .retrive()
+            .bodyToMono(<span class="predefined-type">String</span>.class);
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_postリクエスト"><a class="anchor" href="#_postリクエスト"></a>5.1.4. POSTリクエスト</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>`webClient.post()`メソッドによってPOSTメソッドであることを指定する</p>
+</li>
+<li>
+<p>`uri()`メソッドによってリクエスト先のURLを指定する</p>
+</li>
+<li>
+<p>`contentType()`メソッドによってリクエストボディのコンテンツタイプを指定する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>未指定の場合、`application/x-www-form-urlencoded`と解釈される</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>`body()`メソッド等によってリクエストボディをセットする</p>
+</li>
+<li>
+<p>`retrive()`メソッドによってレスポンスを得る</p>
+</li>
+<li>
+<p><code>bodyToMono()</code>、<code>bodyToFlux()`メソッドによってレスポンスを`Mono</code>、`Flux`に変換する</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_postリクエストにおけるリクエストボディの指定方法"><a class="anchor" href="#_postリクエストにおけるリクエストボディの指定方法"></a>5.2. POSTリクエストにおけるリクエストボディの指定方法</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>body()</code></p>
+</li>
+<li>
+<p><code>bodyValue()</code></p>
+</li>
+<li>
+<p><code>MultiValueMap</code></p>
+</li>
+<li>
+<p><code>BodyInserter</code></p>
+</li>
+<li>
+<p><code>MultiPartBodyBuilder</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_リクエストのカスタマイズ"><a class="anchor" href="#_リクエストのカスタマイズ"></a>5.3. リクエストのカスタマイズ</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Acceptヘッダの追加</p>
+</li>
+<li>
+<p>ヘッダの追加</p>
+</li>
+<li>
+<p>Cookieの追加</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_webclientのカスタマイズ"><a class="anchor" href="#_webclientのカスタマイズ"></a>5.4. WebClientのカスタマイズ</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>ベースURLの指定</p>
+</li>
+<li>
+<p>デフォルトヘッダの指定</p>
+</li>
+<li>
+<p>デフォルトCookieの指定</p>
+</li>
+<li>
+<p>タイムアウトの指定</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spring_bootにおけるwebclient関連のauto_configuration"><a class="anchor" href="#_spring_bootにおけるwebclient関連のauto_configuration"></a>5.5. Spring BootにおけるWebClient関連のauto configuration</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient</p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java">spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java">spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spring_bootweb_mvcの中でwebclientを使用する方法"><a class="anchor" href="#_spring_bootweb_mvcの中でwebclientを使用する方法"></a>5.6. Spring Boot(Web MVC)の中でWebClientを使用する方法</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>spring-boot-starter-webとspring-boot-starter-webfluxを依存関係に加える。</p>
+</li>
+<li>
+<p>webとwebfluxの両方が依存関係に存在する場合、アプリケーションはwebとしての設定が優先される。</p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux">Spring Boot Reference Documentation</a></p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_github_actionsでasciidocからgithub_pagesを生成"><a class="anchor" href="#_github_actionsでasciidocからgithub_pagesを生成"></a>5. GitHub ActionsでasciidocからGitHub Pagesを生成</h2>
+<h2 id="_github_actionsでasciidocからgithub_pagesを生成"><a class="anchor" href="#_github_actionsでasciidocからgithub_pagesを生成"></a>6. GitHub ActionsでasciidocからGitHub Pagesを生成</h2>
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
@@ -1222,7 +1442,7 @@ Flux.just(<span class="keyword">new</span> Message(<span class="string"><span cl
 </div>
 </div>
 <div class="sect1">
-<h2 id="_parking_lot"><a class="anchor" href="#_parking_lot"></a>6. parking lot</h2>
+<h2 id="_parking_lot"><a class="anchor" href="#_parking_lot"></a>7. parking lot</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -1348,7 +1568,7 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 </div>
 <div class="sect2">
-<h3 id="_マイクロサービスのサンプル実装"><a class="anchor" href="#_マイクロサービスのサンプル実装"></a>6.1. マイクロサービスのサンプル実装</h3>
+<h3 id="_マイクロサービスのサンプル実装"><a class="anchor" href="#_マイクロサービスのサンプル実装"></a>7.1. マイクロサービスのサンプル実装</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1373,7 +1593,7 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 </div>
 <div class="sect2">
-<h3 id="_prometheus"><a class="anchor" href="#_prometheus"></a>6.2. prometheus</h3>
+<h3 id="_prometheus"><a class="anchor" href="#_prometheus"></a>7.2. prometheus</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="shell">docker run -p 9090:9090 -v ${PWD}/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest</code></pre>
@@ -1394,7 +1614,7 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 </div>
 <div class="sect2">
-<h3 id="_reactor_nettyにおけるコネクションプール"><a class="anchor" href="#_reactor_nettyにおけるコネクションプール"></a>6.3. reactor-nettyにおけるコネクションプール</h3>
+<h3 id="_reactor_nettyにおけるコネクションプール"><a class="anchor" href="#_reactor_nettyにおけるコネクションプール"></a>7.3. reactor-nettyにおけるコネクションプール</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1404,7 +1624,7 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 </div>
 <div class="sect2">
-<h3 id="_spring_bootweb_mvcの中でwebclientを使いたい場合"><a class="anchor" href="#_spring_bootweb_mvcの中でwebclientを使いたい場合"></a>6.4. Spring Boot(Web MVC)の中でWebClientを使いたい場合</h3>
+<h3 id="_spring_bootweb_mvcの中でwebclientを使いたい場合"><a class="anchor" href="#_spring_bootweb_mvcの中でwebclientを使いたい場合"></a>7.4. Spring Boot(Web MVC)の中でWebClientを使いたい場合</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1463,7 +1683,7 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-04 15:46:35 UTC
+Last updated 2020-05-04 15:50:31 UTC
 </div>
 </div>
 <style>

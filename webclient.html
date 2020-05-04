@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>参考資料</title>
+<title>WebClient</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,138 +438,217 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>参考資料</h1>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_reactor関連">Reactor関連</h2>
+<h2 id="_webclient">WebClient</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_基本的な使い方with_spring_boot">基本的な使い方（with Spring Boot)</h3>
+<div class="sect3">
+<h4 id="_プロジェクトのセットアップ">プロジェクトのセットアップ</h4>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://www.reactive-streams.org/">https://www.reactive-streams.org</a></p>
+<p>`spring-boot-starter-webflux`を依存関係に加える。</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_webclientのセットアップ">WebClientのセットアップ</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>`WebClient`を使用するコンポーネントでDIによって`WebClient.Builder`を受け取る。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>`WebClient.Builder`はSpring Bootによってbean定義されている。</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p><a href="https://github.com/reactive-streams/reactive-streams-jvm">reactive-streams/reactive-streams-jvm: Reactive Streams Specification for the JVM</a></p>
+<p>`WebClient.Builder#build()`メソッドを使用し、`WebClient`インスタンスを得る。</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_getリクエスト">GETリクエスト</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>`webClient.get()`メソッドによってGETメソッドであることを指定する</p>
 </li>
 <li>
-<p><a href="https://qiita.com/rubytomato@github/items/40c2aeabf762cc9465ad">Reactive StreamsとJDK 9 Flow APIの入門メモ - Qiita</a></p>
+<p>`uri()`メソッドによってリクエスト先のURLを指定する</p>
 </li>
 <li>
-<p><a href="https://projectreactor.io/">Project Reactor</a></p>
+<p>`retrive()`メソッドによってレスポンスを得る</p>
 </li>
 <li>
-<p><a href="https://projectreactor.io/docs/core/release/reference/">Reactor 3 Reference Guide</a></p>
+<p><code>bodyToMono()</code>、<code>bodyToFlux()`メソッドによってレスポンスを`Mono</code>、`Flux`に変換する</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Component
+public class WebClientSample {
+    private final WebClient webClient;
+
+    public WebClientSample(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+
+    public Mono&lt;String&gt; getRequest() {
+        return webClient.get()
+            .uri("http://localhost:8080/text")
+            .retrive()
+            .bodyToMono(String.class);
+    }
+
+    public Mono&lt;String&gt; postRequest() {
+        return webClient.post()
+            .uri("http://localhost:8080/echo")
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(Mono.just("hello post request"), String.class)
+            .retrive()
+            .bodyToMono(String.class);
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_postリクエスト">POSTリクエスト</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>`webClient.post()`メソッドによってPOSTメソッドであることを指定する</p>
 </li>
 <li>
-<p><a href="https://github.com/reactor/reactor-core">reactor/reactor-core: Non-Blocking Reactive Foundation for the JVM</a></p>
+<p>`uri()`メソッドによってリクエスト先のURLを指定する</p>
 </li>
 <li>
-<p><a href="https://github.com/reactor/head-first-reactive-with-spring-and-reactor">reactor/head-first-reactive-with-spring-and-reactor</a></p>
+<p>`contentType()`メソッドによってリクエストボディのコンテンツタイプを指定する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>未指定の場合、`application/x-www-form-urlencoded`と解釈される</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
-<p><a href="https://www.infoq.com/articles/reactor-by-example/">Reactor by Example</a></p>
+<p>`body()`メソッド等によってリクエストボディをセットする</p>
 </li>
 <li>
-<p><a href="https://qiita.com/sugibuchi/items/e933ae4b5ec512054de2">Reactor Core 2.5: もう一つのJava向けReactive Extensions実装 - Qiita</a></p>
+<p>`retrive()`メソッドによってレスポンスを得る</p>
 </li>
 <li>
-<p><a href="https://qiita.com/toastkidjp/items/6edad417753eff51ce0a">Reactor Core 3.x のハンズオン "Lite Rx API Hands-on"をやってみる - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/d-yosh/items/d78b72dc48b560889110">Lite Rx API Hands-on やってみた - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://kazuhira-r.hatenablog.com/entry/20180103/1514986183">3.1からやり直すReactor Core／Test - CLOVER🍀</a></p>
-</li>
-<li>
-<p><a href="https://kazuhira-r.hatenablog.com/entry/20180107/1515327957">ReactorのSchedulerをちょっと見てみる - CLOVER🍀</a></p>
-</li>
-<li>
-<p><a href="https://cero-t.hatenadiary.jp/entry/20171215/1513290305">ReactorでN+1問題な処理を実装してみた話 - 谷本 心 in せろ部屋</a></p>
+<p><code>bodyToMono()</code>、<code>bodyToFlux()`メソッドによってレスポンスを`Mono</code>、`Flux`に変換する</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_spring_webflux関連">Spring WebFlux関連</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_postリクエストにおけるリクエストボディの指定方法">POSTリクエストにおけるリクエストボディの指定方法</h3>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html">Web on Reactive Stack</a></p>
+<p><code>body()</code></p>
 </li>
 <li>
-<p><a href="https://www.slideshare.net/makingx/introduction-to-spring-webflux-jsug-sfa1">Introduction to Spring WebFlux #jsug #sf_a1</a></p>
+<p><code>bodyValue()</code></p>
 </li>
 <li>
-<p><a href="https://engineering.linecorp.com/ja/blog/reactive-streams-with-armeria-1/">Let’s play Reactive Streams with Armeria vol.1</a></p>
+<p><code>MultiValueMap</code></p>
 </li>
 <li>
-<p><a href="https://engineering.linecorp.com/ja/blog/reactive-streams-with-armeria-2/">Let’s play Reactive Streams with Armeria vol.2</a></p>
+<p><code>BodyInserter</code></p>
 </li>
 <li>
-<p><a href="https://speakerdeck.com/shintanimoto/introduction-to-reactive-programming-using-spring-webflux">業務で使いたいWebFluxによるReactiveプログラミング / Introduction to Reactive Programming using Spring WebFlux - Speaker Deck</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/d-yosh/items/87f4141be284a08f09bb">Spring WebFlux + Redis でリアルタイムチャットを作ってみた - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/ota-meshi/items/2c01b118d9d1890cc97b">100万件データをサーバーから取得してブラウザに表示させるのにSpring WebFlux使ったら初期描画が速くなると思ったのでやってみた - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://www.kimullaa.com/entry/2018/04/25/214708">Spring WebFlux の概要を理解する - SIerだけど技術やりたいブログ</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/yut_arrows/items/5c56c81b89b1e8ae4bf4">ゼロから始めるSpring WebFlux - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://www.slideshare.net/makingx/reactive-web-spring-5-jjugccc-cccef3">Reactive Webアプリケーション - そしてSpring 5へ #jjug_ccc #ccc_ef3</a></p>
-</li>
-<li>
-<p><a href="https://www.youtube.com/watch?v=1F10gr2pbvQ">GOTO 2019 Reactive Spring Josh Long</a></p>
-</li>
-<li>
-<p><a href="https://bufferings.hatenablog.com/entry/2018/03/27/233152">SpringBoot2のBlocking Web vs Reactive WebについてLTしてきた - Mitsuyuki.Shiiba</a></p>
-</li>
-<li>
-<p><a href="https://docs.google.com/presentation/d/1-0NopTfA-CGiCNvKPDOH9ZDMHhazKuoT-_1R69Wp8qs">Functional Spring Cookbook</a></p>
+<p><code>MultiPartBodyBuilder</code></p>
 </li>
 </ul>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_rsocket関連">RSocket関連</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_リクエストのカスタマイズ">リクエストのカスタマイズ</h3>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://docs.google.com/presentation/d/1ygSM85-RQ3NZjCg6RaZ52mGzxbWiItVwzlCpr1vaWBw/edit?usp=sharing">RSocket徹底入門</a></p>
+<p>Acceptヘッダの追加</p>
+</li>
+<li>
+<p>ヘッダの追加</p>
+</li>
+<li>
+<p>Cookieの追加</p>
 </li>
 </ul>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_その他">その他</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_webclientのカスタマイズ">WebClientのカスタマイズ</h3>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://www.reactivemanifesto.org/ja/glossary">用語集 - リアクティブ宣言</a></p>
+<p>ベースURLの指定</p>
 </li>
 <li>
-<p><a href="https://blog.takanabe.tokyo/2015/03/%E3%83%8E%E3%83%B3%E3%83%96%E3%83%AD%E3%83%83%E3%82%AD%E3%83%B3%E3%82%B0i/o%E3%81%A8%E9%9D%9E%E5%90%8C%E6%9C%9Fi/o%E3%81%AE%E9%81%95%E3%81%84%E3%82%92%E7%90%86%E8%A7%A3%E3%81%99%E3%82%8B/">ノンブロッキングI/Oと非同期I/Oの違いを理解する</a></p>
+<p>デフォルトヘッダの指定</p>
 </li>
 <li>
-<p><a href="https://yuk1tyd.hatenablog.com/entry/2018/03/10/145159">java.nio を使って簡単な HTTP サーバーを作ってみる: ノンブロッキングなHTTP サーバー - Don&#8217;t Repeat Yourself</a></p>
+<p>デフォルトCookieの指定</p>
 </li>
 <li>
-<p><a href="https://projectreactor.io/docs/netty/snapshot/reference/index.html">Reactor Netty Reference Guide</a></p>
+<p>タイムアウトの指定</p>
 </li>
 </ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spring_bootにおけるwebclient関連のauto_configuration">Spring BootにおけるWebClient関連のauto configuration</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient</p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java">spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java">spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spring_bootweb_mvcの中でwebclientを使用する方法">Spring Boot(Web MVC)の中でWebClientを使用する方法</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>spring-boot-starter-webとspring-boot-starter-webfluxを依存関係に加える。</p>
+</li>
+<li>
+<p>webとwebfluxの両方が依存関係に存在する場合、アプリケーションはwebとしての設定が優先される。</p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux">Spring Boot Reference Documentation</a></p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
