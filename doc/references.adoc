@@ -39,3 +39,7 @@
 * link:https://blog.takanabe.tokyo/2015/03/%E3%83%8E%E3%83%B3%E3%83%96%E3%83%AD%E3%83%83%E3%82%AD%E3%83%B3%E3%82%B0i/o%E3%81%A8%E9%9D%9E%E5%90%8C%E6%9C%9Fi/o%E3%81%AE%E9%81%95%E3%81%84%E3%82%92%E7%90%86%E8%A7%A3%E3%81%99%E3%82%8B/[ノンブロッキングI/Oと非同期I/Oの違いを理解する]
 * link:https://yuk1tyd.hatenablog.com/entry/2018/03/10/145159[java.nio を使って簡単な HTTP サーバーを作ってみる: ノンブロッキングなHTTP サーバー - Don't Repeat Yourself]
 * link:https://projectreactor.io/docs/netty/snapshot/reference/index.html[Reactor Netty Reference Guide]
+* link:https://www.slideshare.net/mikeneck/jjug-ccc-2018-spring-i7-netty[JJUG CCC 2018 Spring - I-7 (俺が)はじめての Netty]
+* link:https://mike-neck.hatenadiary.com/entry/2018/07/24/073000[Netty で HTTP クライアントを記述する - mike-neckのブログ]
+* link:https://fatrow.hatenadiary.org/entry/20110208/netty[Netty の基本 - hozumiの日記]
+* link:https://qiita.com/haoyu_ma/items/e1989ae752500521825b[Nettyを使ってサーバーを実装してみた - Qiita]

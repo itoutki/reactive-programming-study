@@ -4,21 +4,21 @@
 
 ==== プロジェクトのセットアップ
 
-* `spring-boot-starter-webflux`を依存関係に加える。
+* `spring-boot-starter-webflux` を依存関係に加える。
 
 ==== WebClientのセットアップ
 
-* `WebClient`を使用するコンポーネントでDIによって`WebClient.Builder`を受け取る。
-** `WebClient.Builder`はSpring Bootによってbean定義されている。
-* `WebClient.Builder#build()`メソッドを使用し、`WebClient`インスタンスを得る。
+* `WebClient` を使用するコンポーネントでDIによって `WebClient.Builder` を受け取る。
+** `WebClient.Builder` はSpring Bootによってbean定義されている。
+* `WebClient.Builder#build()` メソッドを使用し、 `WebClient` インスタンスを得る。
 
 
 ==== GETリクエスト
 
-* `webClient.get()`メソッドによってGETメソッドであることを指定する
-* `uri()`メソッドによってリクエスト先のURLを指定する
-* `retrive()`メソッドによってレスポンスを得る
-* `bodyToMono()`、`bodyToFlux()`メソッドによってレスポンスを`Mono`、`Flux`に変換する
+* `webClient.get()` メソッドによってGETメソッドであることを指定する
+* `uri()` メソッドによってリクエスト先のURLを指定する
+* `retrive()` メソッドによってレスポンスを得る
+* `bodyToMono()` 、 `bodyToFlux()` メソッドによってレスポンスを `Mono` 、`Flux` に変換する
 
 [source, java]
 ----
@@ -50,13 +50,13 @@ public class WebClientSample {
 
 ==== POSTリクエスト
 
-* `webClient.post()`メソッドによってPOSTメソッドであることを指定する
-* `uri()`メソッドによってリクエスト先のURLを指定する
-* `contentType()`メソッドによってリクエストボディのコンテンツタイプを指定する
-** 未指定の場合、`application/x-www-form-urlencoded`と解釈される
-* `body()`メソッド等によってリクエストボディをセットする
-* `retrive()`メソッドによってレスポンスを得る
-* `bodyToMono()`、`bodyToFlux()`メソッドによってレスポンスを`Mono`、`Flux`に変換する
+* `webClient.post()` メソッドによってPOSTメソッドであることを指定する
+* `uri()` メソッドによってリクエスト先のURLを指定する
+* `contentType()` メソッドによってリクエストボディのコンテンツタイプを指定する
+** 未指定の場合、`application/x-www-form-urlencoded` と解釈される
+* `body()` メソッド等によってリクエストボディをセットする
+* `retrive()` メソッドによってレスポンスを得る
+* `bodyToMono()` 、`bodyToFlux()` メソッドによってレスポンスを `Mono` 、`Flux` に変換する
 
 === POSTリクエストにおけるリクエストボディの指定方法
 
@@ -68,22 +68,65 @@ public class WebClientSample {
 
 === リクエストのカスタマイズ
 
+* Content-Typeヘッダの追加
+** `contentType()` メソッドによってリクエストボディのコンテンツタイプを指定する
 * Acceptヘッダの追加
+** `accept()` メソッドによってAcceptヘッダを指定する。
 * ヘッダの追加
+** `header()` 、`headers()` メソッドによって任意のヘッダを指定する。
 * Cookieの追加
+** `cookie()`、 `cookies()` メソッドによって任意のCookieを指定する。
 
+[source, java]
+----
+webClient.post()
+    .uri("http://localhost:8080/echo")
+    .contentType(MediaType.APPLICATION_JSON)
+    .accept(MediaType.APPLICATION_JSON)
+    .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+    .body(Mono.just("hello post request"), String.class)
+    .retrive()
+    .bodyToMono(String.class);
+----
 
 === WebClientのカスタマイズ
 
 * ベースURLの指定
+** `WebClient.Builder#baseUrl` メソッドによってベースURLを指定する。
+** ベースURLが設定されているWebClientを使用する場合、 `uri()` メソッドではベースURL以降の文字列のみを指定すればよい。
 * デフォルトヘッダの指定
+** `WebClient.Builder#defaultHeader` メソッドによってデフォルトヘッダを指定する。
 * デフォルトCookieの指定
+** `WebClient.Builder#defaultCookie` メソッドによってデフォルトCookieを指定する。
 * タイムアウトの指定
+** 以下のようにタイムアウトを指定した `TcpClient` を元にした `ReactorClientHttpConnector` をbean定義する。
+** `ReactorResourceFactory` は Spring Bootのauto configurationによってbean定義されている。
+** `ClientHttpConnector` をbean定義しておくことにより、Spring Bootのauto configurationによって `WebClient.Builder` に設定される。
+
+[source, java]
+----
+@Bean
+ClientHttpConnector clientHttpConnector(ReactorResourceFactory reactorResourceFactory) {
+    TcpClient tcpClient = TcpClient.create(reactorResourceFactory.getConnectionProvider())
+            .runOn(reactorResourceFactory.getLoopResources())
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+            .doOnConnected(conn -> conn
+                    .addHandlerLast(new ReadTimeoutHandler(30))
+                    .addHandlerLast(new WriteTimeoutHandler(30)));
+    return new ReactorClientHttpConnector(HttpClient.from(tcpClient));
+}
+----
+
+=== Server-Sent Events/json stream形式のレスポンスを受け取る
+
+=== エラーハンドリング
+
+=== リトライ
 
 
 === Spring BootにおけるWebClient関連のauto configuration
 
-** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient
+** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient[]
 ** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java[spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
 ** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java[spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
 
@@ -91,7 +134,7 @@ public class WebClientSample {
 ** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java[spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot]
 
 === Spring Boot(Web MVC)の中でWebClientを使用する方法
-** spring-boot-starter-webとspring-boot-starter-webfluxを依存関係に加える。
+** `spring-boot-starter-web` と `spring-boot-starter-webflux` を依存関係に加える。
 ** webとwebfluxの両方が依存関係に存在する場合、アプリケーションはwebとしての設定が優先される。
-** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux[Spring Boot Reference Documentation]
+*** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux[Spring Boot Reference Documentation]
 
