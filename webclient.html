@@ -450,7 +450,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>`spring-boot-starter-webflux`を依存関係に加える。</p>
+<p><code>spring-boot-starter-webflux</code> を依存関係に加える。</p>
 </li>
 </ul>
 </div>
@@ -460,17 +460,17 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>`WebClient`を使用するコンポーネントでDIによって`WebClient.Builder`を受け取る。</p>
+<p><code>WebClient</code> を使用するコンポーネントでDIによって <code>WebClient.Builder</code> を受け取る。</p>
 <div class="ulist">
 <ul>
 <li>
-<p>`WebClient.Builder`はSpring Bootによってbean定義されている。</p>
+<p><code>WebClient.Builder</code> はSpring Bootによってbean定義されている。</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>`WebClient.Builder#build()`メソッドを使用し、`WebClient`インスタンスを得る。</p>
+<p><code>WebClient.Builder#build()</code> メソッドを使用し、 <code>WebClient</code> インスタンスを得る。</p>
 </li>
 </ul>
 </div>
@@ -480,16 +480,16 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="ulist">
 <ul>
 <li>
-<p>`webClient.get()`メソッドによってGETメソッドであることを指定する</p>
+<p><code>webClient.get()</code> メソッドによってGETメソッドであることを指定する</p>
 </li>
 <li>
-<p>`uri()`メソッドによってリクエスト先のURLを指定する</p>
+<p><code>uri()</code> メソッドによってリクエスト先のURLを指定する</p>
 </li>
 <li>
-<p>`retrive()`メソッドによってレスポンスを得る</p>
+<p><code>retrive()</code> メソッドによってレスポンスを得る</p>
 </li>
 <li>
-<p><code>bodyToMono()</code>、<code>bodyToFlux()`メソッドによってレスポンスを`Mono</code>、`Flux`に変換する</p>
+<p><code>bodyToMono()</code> 、 <code>bodyToFlux()</code> メソッドによってレスポンスを <code>Mono</code> 、<code>Flux</code> に変換する</p>
 </li>
 </ul>
 </div>
@@ -527,29 +527,29 @@ public class WebClientSample {
 <div class="ulist">
 <ul>
 <li>
-<p>`webClient.post()`メソッドによってPOSTメソッドであることを指定する</p>
+<p><code>webClient.post()</code> メソッドによってPOSTメソッドであることを指定する</p>
 </li>
 <li>
-<p>`uri()`メソッドによってリクエスト先のURLを指定する</p>
+<p><code>uri()</code> メソッドによってリクエスト先のURLを指定する</p>
 </li>
 <li>
-<p>`contentType()`メソッドによってリクエストボディのコンテンツタイプを指定する</p>
+<p><code>contentType()</code> メソッドによってリクエストボディのコンテンツタイプを指定する</p>
 <div class="ulist">
 <ul>
 <li>
-<p>未指定の場合、`application/x-www-form-urlencoded`と解釈される</p>
+<p>未指定の場合、<code>application/x-www-form-urlencoded</code> と解釈される</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>`body()`メソッド等によってリクエストボディをセットする</p>
+<p><code>body()</code> メソッド等によってリクエストボディをセットする</p>
 </li>
 <li>
-<p>`retrive()`メソッドによってレスポンスを得る</p>
+<p><code>retrive()</code> メソッドによってレスポンスを得る</p>
 </li>
 <li>
-<p><code>bodyToMono()</code>、<code>bodyToFlux()`メソッドによってレスポンスを`Mono</code>、`Flux`に変換する</p>
+<p><code>bodyToMono()</code> 、<code>bodyToFlux()</code> メソッドによってレスポンスを <code>Mono</code> 、<code>Flux</code> に変換する</p>
 </li>
 </ul>
 </div>
@@ -582,15 +582,58 @@ public class WebClientSample {
 <div class="ulist">
 <ul>
 <li>
+<p>Content-Typeヘッダの追加</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>contentType()</code> メソッドによってリクエストボディのコンテンツタイプを指定する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
 <p>Acceptヘッダの追加</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>accept()</code> メソッドによってAcceptヘッダを指定する。</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>ヘッダの追加</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>header()</code> 、<code>headers()</code> メソッドによって任意のヘッダを指定する。</p>
+</li>
+</ul>
+</div>
 </li>
 <li>
 <p>Cookieの追加</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cookie()</code>、 <code>cookies()</code> メソッドによって任意のCookieを指定する。</p>
 </li>
 </ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">webClient.post()
+    .uri("http://localhost:8080/echo")
+    .contentType(MediaType.APPLICATION_JSON)
+    .accept(MediaType.APPLICATION_JSON)
+    .header("Accept", MediaType.APPLICATION_JSON_VALUE)
+    .body(Mono.just("hello post request"), String.class)
+    .retrive()
+    .bodyToMono(String.class);</code></pre>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -599,25 +642,88 @@ public class WebClientSample {
 <ul>
 <li>
 <p>ベースURLの指定</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>WebClient.Builder#baseUrl</code> メソッドによってベースURLを指定する。</p>
 </li>
 <li>
-<p>デフォルトヘッダの指定</p>
-</li>
-<li>
-<p>デフォルトCookieの指定</p>
-</li>
-<li>
-<p>タイムアウトの指定</p>
+<p>ベースURLが設定されているWebClientを使用する場合、 <code>uri()</code> メソッドではベースURL以降の文字列のみを指定すればよい。</p>
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p>デフォルトヘッダの指定</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>WebClient.Builder#defaultHeader</code> メソッドによってデフォルトヘッダを指定する。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>デフォルトCookieの指定</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>WebClient.Builder#defaultCookie</code> メソッドによってデフォルトCookieを指定する。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>タイムアウトの指定</p>
+<div class="ulist">
+<ul>
+<li>
+<p>以下のようにタイムアウトを指定した <code>TcpClient</code> を元にした <code>ReactorClientHttpConnector</code> をbean定義する。</p>
+</li>
+<li>
+<p><code>ReactorResourceFactory</code> は Spring Bootのauto configurationによってbean定義されている。</p>
+</li>
+<li>
+<p><code>ClientHttpConnector</code> をbean定義しておくことにより、Spring Bootのauto configurationによって <code>WebClient.Builder</code> に設定される。</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Bean
+ClientHttpConnector clientHttpConnector(ReactorResourceFactory reactorResourceFactory) {
+    TcpClient tcpClient = TcpClient.create(reactorResourceFactory.getConnectionProvider())
+            .runOn(reactorResourceFactory.getLoopResources())
+            .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+            .doOnConnected(conn -&gt; conn
+                    .addHandlerLast(new ReadTimeoutHandler(30))
+                    .addHandlerLast(new WriteTimeoutHandler(30)));
+    return new ReactorClientHttpConnector(HttpClient.from(tcpClient));
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_server_sent_eventsjson_stream形式のレスポンスを受け取る">Server-Sent Events/json stream形式のレスポンスを受け取る</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_エラーハンドリング">エラーハンドリング</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_リトライ">リトライ</h3>
+
 </div>
 <div class="sect2">
 <h3 id="_spring_bootにおけるwebclient関連のauto_configuration">Spring BootにおけるWebClient関連のauto configuration</h3>
 <div class="ulist">
 <ul>
 <li>
-<p>link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient</p>
+<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient" class="bare">https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient</a></p>
 </li>
 <li>
 <p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java">spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
@@ -639,13 +745,17 @@ public class WebClientSample {
 <div class="ulist">
 <ul>
 <li>
-<p>spring-boot-starter-webとspring-boot-starter-webfluxを依存関係に加える。</p>
+<p><code>spring-boot-starter-web</code> と <code>spring-boot-starter-webflux</code> を依存関係に加える。</p>
 </li>
 <li>
 <p>webとwebfluxの両方が依存関係に存在する場合、アプリケーションはwebとしての設定が優先される。</p>
-</li>
+<div class="ulist">
+<ul>
 <li>
 <p><a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux">Spring Boot Reference Documentation</a></p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -655,7 +765,7 @@ public class WebClientSample {
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-04 15:50:31 UTC
+Last updated 2020-05-04 16:42:52 UTC
 </div>
 </div>
 </body>
