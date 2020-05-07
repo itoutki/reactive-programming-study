@@ -12,14 +12,6 @@
 ** `WebClient.Builder` はSpring Bootによってbean定義されている。
 * `WebClient.Builder#build()` メソッドを使用し、 `WebClient` インスタンスを得る。
 
-
-==== GETリクエスト
-
-* `webClient.get()` メソッドによってGETメソッドであることを指定する
-* `uri()` メソッドによってリクエスト先のURLを指定する
-* `retrive()` メソッドによってレスポンスを得る
-* `bodyToMono()` 、 `bodyToFlux()` メソッドによってレスポンスを `Mono` 、`Flux` に変換する
-
 [source, java]
 ----
 @Component
@@ -36,27 +28,100 @@ public class WebClientSample {
             .retrive()
             .bodyToMono(String.class);
     }
+}
+----
 
-    public Mono<String> postRequest() {
-        return webClient.post()
-            .uri("http://localhost:8080/echo")
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(Mono.just("hello post request"), String.class)
-            .retrive()
+==== GETリクエスト
+
+* `webClient.get()` メソッドによってGETメソッドであることを指定する
+* `uri()` メソッドによってリクエスト先のURLを指定する
+* `retrive()` メソッドによってレスポンスを得る
+* `bodyToMono()` 、 `bodyToFlux()` メソッドによってレスポンスを `Mono` 、`Flux` に変換する
+** 1件しかデータが返ってこない場合は `Mono` に変換する。
+** 複数件のデータをまとめてリストとして受け取りたい場合、 `bodyToMono` と `ParameterizedTypeReference` を組み合わせる。
+** 1件以上のデータが返ってくる場合は `Flux` に変換する。
+
+[source, java]
+----
+// Mono(String) API -> bodyToMono OK
+@GetMapping("/gettext")
+public Mono<String> getText() {
+    return webClient.get()
+            .uri("http://localhost:8080/text")
+            .retrieve()
             .bodyToMono(String.class);
-    }
+}
+
+// Mono(object) API -> bodyToMono OK
+@GetMapping("/getmessagemono")
+public Mono<Message> getMessageMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/message")
+            .retrieve()
+            .bodyToMono(Message.class);
+}
+
+// Mono(object) API -> bodyToFlux OK
+@GetMapping("/getmessageflux")
+public Flux<Message> getMessageFlux() {
+    return webClient.get()
+            .uri("http://localhost:8080/message")
+            .retrieve()
+            .bodyToFlux(Message.class);
+}
+
+// Flux(array) API  -> bodyToMono NG
+// array型のレスポンスをMessageオブジェクトに変換できないため
+@GetMapping("/getmessagesmono")
+public Mono<Message> getMessagesMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToMono(Message.class);
+}
+
+// Flux(array) API  -> bodyToMono
+// ParameterizedTypeReferenceを使うことで無理やり実現することはできる
+// ただし返ってくるのはMessage型ではなくList<Message>型
+@GetMapping("/getmessagesmono")
+public Mono<ArrayList<Message>> getMessagesMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToMono(new ParameterizedTypeReference<ArrayList<Message>>() {});
+}
+
+// Flux(array) API  -> bodyToFlux OK
+@GetMapping("/getmessagesflux")
+public Flux<Message> getMessagesFlux() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToFlux(Message.class);
 }
 ----
 
 ==== POSTリクエスト
 
-* `webClient.post()` メソッドによってPOSTメソッドであることを指定する
-* `uri()` メソッドによってリクエスト先のURLを指定する
-* `contentType()` メソッドによってリクエストボディのコンテンツタイプを指定する
-** 未指定の場合、`application/x-www-form-urlencoded` と解釈される
-* `body()` メソッド等によってリクエストボディをセットする
-* `retrive()` メソッドによってレスポンスを得る
-* `bodyToMono()` 、`bodyToFlux()` メソッドによってレスポンスを `Mono` 、`Flux` に変換する
+* `webClient.post()` メソッドによってPOSTメソッドであることを指定する。
+* `uri()` メソッドによってリクエスト先のURLを指定する。
+* `contentType()` メソッドによってリクエストボディのコンテンツタイプを指定する。
+** 未指定の場合、`application/x-www-form-urlencoded` と解釈される。
+* `body()` メソッド等によってリクエストボディをセットする。
+* `retrive()` メソッドによってレスポンスを得る。
+* `bodyToMono()` 、`bodyToFlux()` メソッドによってレスポンスを `Mono` 、`Flux` に変換する。
+
+[source, java]
+----
+public Mono<String> postRequest() {
+    return webClient.post()
+        .uri("http://localhost:8080/echo")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(Mono.just("hello post request"), String.class)
+        .retrive()
+        .bodyToMono(String.class);
+}
+----
 
 === POSTリクエストにおけるリクエストボディの指定方法
 
@@ -117,19 +182,80 @@ ClientHttpConnector clientHttpConnector(ReactorResourceFactory reactorResourceFa
 }
 ----
 
-=== Server-Sent Events/json stream形式のレスポンスを受け取る
+=== Server-Sent Events形式のレスポンスを受け取る
+
+* Acceptヘッダに `text/event-stream` を指定する。
+* `bodyToFlux` メソッドでFluxに変換することで1件ずつレスポンスを受け取れる。
+
+[source, java]
+----
+webClient.get()
+    .uri("http://localhost:8080/delayedtexts")
+    .accept(MediaType.TEXT_EVENT_STREAM)
+    .retrieve()
+    .bodyToFlux(String.class);
+----
+
+=== stream json形式のレスポンスを受け取る
+
+* Acceptヘッダに `application/stream+json` を指定する。
+* `bodyToFlux` メソッドでFluxに変換することで1件ずつレスポンスを受け取れる。
+
+[source, java]
+----
+webClient.get()
+    .uri("http://localhost:8080/messages")
+    .accept(MediaType.TEXT_EVENT_STREAM)
+    .retrieve()
+    .bodyToFlux(Message.class);
+----
 
 === エラーハンドリング
 
+* `WebClient` を利用したリクエストで4xxや5xxのステータスコードのレスポンスが返ってきた場合、 `WebClientResponseException` またはそのサブクラス（ステータスコードごと）がthrowされる。
+* 例外クラスをカスタマイズする場合、 `onStatus` メソッドを使用する。
+* エラーハンドリングには、reactorの仕組みを利用する。
+* `onErrorResume(Class<E> type, Function<? super E,? extends Publisher<? extends T>> fallback)` メソッドを使うことで、特定の例外クラスの時の処理を実装できる。
+* `onErrorMap` メソッドを使うことで、例外クラスの変換を行うことができる。
+* `onStatus` メソッドを使うことで、レスポンスのステータスコードに応じた例外クラスの変換を行うことができる。
+
 === リトライ
 
+* 元々、reactor-coreには単純なretry（無制限のリトライ・回数制限のリトライ）しかなく、複雑なリトライはreactor-extraとして提供されていた。
+* v3.2.0以降、リトライの機能がreactor-core側に実装されてきており、reactor-extraを使ったリトライはduplicatedになっている。
+** link:https://projectreactor.io/docs/core/release/reference/#extra-repeat-retry[Reactor 3 Reference Guide Appendix C: Reactor-Extra C3. Repeat and Retry Utilities]
+
+* Retry.indefinitely
+** リトライ間隔：すぐ
+** リトライ回数：無限
+* Retry.max
+** リトライ間隔：すぐ
+** リトライ回数：引数指定
+* Retry.maxInARow
+** リトライ間隔：すぐ
+** リトライ回数：引数指定。ただし、onNextイベントが正常に発生するたびに回数はリセットされる。連続でn回エラーになった場合に終了する。
+* Retry.fixedDelay
+** リトライ間隔：引数で指定した時間
+** リトライ回数：引数指定
+* Retry.backoff
+** リトライ間隔：引数で指定した時間 * 2のn-1乗 + ゆらぎ（n：リトライ回数）
+** リトライ回数：引数指定
 
 === Spring BootにおけるWebClient関連のauto configuration
 
-** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient[]
+* Spring Bootでは、以下のクラスをbean定義している。
+** `WebClient.Builder`
+** `ReactorResourceFactory`
+** `ReactorClientHttpConnector`
+* `WebClient` をカスタマイズする仕組みとして、 `WebClientCustomizer` を用意している。
+* `WebClient.Builder` を引数に取るメソッドを実装することにより、 `WebClient`をカスタマイズする。
+* `auto configurationの中で `WebClient.Builder` に `WebClientCustomizer` を適用するため、 `WebClient` 自体をbean定義してしまうと、この仕組みを利用できない。
+* v2.3.0.RC1から `ReactNettyHttpClientMapper` が実装され、 `HttpClient` をカスタマイズできるようになった。
+
+** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient[Spring Boot Reference Documentation 4.15. Calling REST Services with WebClient]
 ** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java[spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
 ** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java[spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot]
-
+** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/web/reactive/function/client/WebClientCustomizer.java[spring-boot/WebClientCustomizer.java at v2.3.0.M4 · spring-projects/spring-boot]
 ** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java[spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.RC1 · spring-projects/spring-boot]
 ** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java[spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot]
 
@@ -137,4 +263,20 @@ ClientHttpConnector clientHttpConnector(ReactorResourceFactory reactorResourceFa
 ** `spring-boot-starter-web` と `spring-boot-starter-webflux` を依存関係に加える。
 ** webとwebfluxの両方が依存関係に存在する場合、アプリケーションはwebとしての設定が優先される。
 *** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux[Spring Boot Reference Documentation]
+
+
+=== RestTemplateとWebClient
+
+* Spring FrameworkではHTTP Clientとして `RestTemplate` がよく使用されていたが、v５.0でメンテナンスモードになり、WebClientの利用が推奨されている。
+** link:https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#webmvc-resttemplate[Web on Servlet Stack]
+
+=== memo
+
+* 検証項目
+** 直列実行
+** 並列実行
+** キャッシュ
+** テスト
+** コネクションプール
+** リダイレクト
 

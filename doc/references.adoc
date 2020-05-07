@@ -43,3 +43,4 @@
 * link:https://mike-neck.hatenadiary.com/entry/2018/07/24/073000[Netty で HTTP クライアントを記述する - mike-neckのブログ]
 * link:https://fatrow.hatenadiary.org/entry/20110208/netty[Netty の基本 - hozumiの日記]
 * link:https://qiita.com/haoyu_ma/items/e1989ae752500521825b[Nettyを使ってサーバーを実装してみた - Qiita]
+* link:https://qiita.com/cypher256/items/347f86ba10075debe6e6[Spring Boot 爆速パフォーマンスアップ - Qiita]
