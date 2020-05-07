@@ -474,25 +474,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 </ul>
 </div>
-</div>
-<div class="sect3">
-<h4 id="_getリクエスト">GETリクエスト</h4>
-<div class="ulist">
-<ul>
-<li>
-<p><code>webClient.get()</code> メソッドによってGETメソッドであることを指定する</p>
-</li>
-<li>
-<p><code>uri()</code> メソッドによってリクエスト先のURLを指定する</p>
-</li>
-<li>
-<p><code>retrive()</code> メソッドによってレスポンスを得る</p>
-</li>
-<li>
-<p><code>bodyToMono()</code> 、 <code>bodyToFlux()</code> メソッドによってレスポンスを <code>Mono</code> 、<code>Flux</code> に変換する</p>
-</li>
-</ul>
-</div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-java" data-lang="java">@Component
@@ -509,15 +490,98 @@ public class WebClientSample {
             .retrive()
             .bodyToMono(String.class);
     }
-
-    public Mono&lt;String&gt; postRequest() {
-        return webClient.post()
-            .uri("http://localhost:8080/echo")
-            .contentType(MediaType.APPLICATION_JSON)
-            .body(Mono.just("hello post request"), String.class)
-            .retrive()
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_getリクエスト">GETリクエスト</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>webClient.get()</code> メソッドによってGETメソッドであることを指定する</p>
+</li>
+<li>
+<p><code>uri()</code> メソッドによってリクエスト先のURLを指定する</p>
+</li>
+<li>
+<p><code>retrive()</code> メソッドによってレスポンスを得る</p>
+</li>
+<li>
+<p><code>bodyToMono()</code> 、 <code>bodyToFlux()</code> メソッドによってレスポンスを <code>Mono</code> 、<code>Flux</code> に変換する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>1件しかデータが返ってこない場合は <code>Mono</code> に変換する。</p>
+</li>
+<li>
+<p>複数件のデータをまとめてリストとして受け取りたい場合、 <code>bodyToMono</code> と <code>ParameterizedTypeReference</code> を組み合わせる。</p>
+</li>
+<li>
+<p>1件以上のデータが返ってくる場合は <code>Flux</code> に変換する。</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">// Mono(String) API -&gt; bodyToMono OK
+@GetMapping("/gettext")
+public Mono&lt;String&gt; getText() {
+    return webClient.get()
+            .uri("http://localhost:8080/text")
+            .retrieve()
             .bodyToMono(String.class);
-    }
+}
+
+// Mono(object) API -&gt; bodyToMono OK
+@GetMapping("/getmessagemono")
+public Mono&lt;Message&gt; getMessageMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/message")
+            .retrieve()
+            .bodyToMono(Message.class);
+}
+
+// Mono(object) API -&gt; bodyToFlux OK
+@GetMapping("/getmessageflux")
+public Flux&lt;Message&gt; getMessageFlux() {
+    return webClient.get()
+            .uri("http://localhost:8080/message")
+            .retrieve()
+            .bodyToFlux(Message.class);
+}
+
+// Flux(array) API  -&gt; bodyToMono NG
+// array型のレスポンスをMessageオブジェクトに変換できないため
+@GetMapping("/getmessagesmono")
+public Mono&lt;Message&gt; getMessagesMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToMono(Message.class);
+}
+
+// Flux(array) API  -&gt; bodyToMono
+// ParameterizedTypeReferenceを使うことで無理やり実現することはできる
+// ただし返ってくるのはMessage型ではなくList&lt;Message&gt;型
+@GetMapping("/getmessagesmono")
+public Mono&lt;ArrayList&lt;Message&gt;&gt; getMessagesMono() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToMono(new ParameterizedTypeReference&lt;ArrayList&lt;Message&gt;&gt;() {});
+}
+
+// Flux(array) API  -&gt; bodyToFlux OK
+@GetMapping("/getmessagesflux")
+public Flux&lt;Message&gt; getMessagesFlux() {
+    return webClient.get()
+            .uri("http://localhost:8080/messages")
+            .retrieve()
+            .bodyToFlux(Message.class);
 }</code></pre>
 </div>
 </div>
@@ -527,31 +591,43 @@ public class WebClientSample {
 <div class="ulist">
 <ul>
 <li>
-<p><code>webClient.post()</code> メソッドによってPOSTメソッドであることを指定する</p>
+<p><code>webClient.post()</code> メソッドによってPOSTメソッドであることを指定する。</p>
 </li>
 <li>
-<p><code>uri()</code> メソッドによってリクエスト先のURLを指定する</p>
+<p><code>uri()</code> メソッドによってリクエスト先のURLを指定する。</p>
 </li>
 <li>
-<p><code>contentType()</code> メソッドによってリクエストボディのコンテンツタイプを指定する</p>
+<p><code>contentType()</code> メソッドによってリクエストボディのコンテンツタイプを指定する。</p>
 <div class="ulist">
 <ul>
 <li>
-<p>未指定の場合、<code>application/x-www-form-urlencoded</code> と解釈される</p>
+<p>未指定の場合、<code>application/x-www-form-urlencoded</code> と解釈される。</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p><code>body()</code> メソッド等によってリクエストボディをセットする</p>
+<p><code>body()</code> メソッド等によってリクエストボディをセットする。</p>
 </li>
 <li>
-<p><code>retrive()</code> メソッドによってレスポンスを得る</p>
+<p><code>retrive()</code> メソッドによってレスポンスを得る。</p>
 </li>
 <li>
-<p><code>bodyToMono()</code> 、<code>bodyToFlux()</code> メソッドによってレスポンスを <code>Mono</code> 、<code>Flux</code> に変換する</p>
+<p><code>bodyToMono()</code> 、<code>bodyToFlux()</code> メソッドによってレスポンスを <code>Mono</code> 、<code>Flux</code> に変換する。</p>
 </li>
 </ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public Mono&lt;String&gt; postRequest() {
+    return webClient.post()
+        .uri("http://localhost:8080/echo")
+        .contentType(MediaType.APPLICATION_JSON)
+        .body(Mono.just("hello post request"), String.class)
+        .retrive()
+        .bodyToMono(String.class);
+}</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -707,23 +783,194 @@ ClientHttpConnector clientHttpConnector(ReactorResourceFactory reactorResourceFa
 </div>
 </div>
 <div class="sect2">
-<h3 id="_server_sent_eventsjson_stream形式のレスポンスを受け取る">Server-Sent Events/json stream形式のレスポンスを受け取る</h3>
-
+<h3 id="_server_sent_events形式のレスポンスを受け取る">Server-Sent Events形式のレスポンスを受け取る</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Acceptヘッダに <code>text/event-stream</code> を指定する。</p>
+</li>
+<li>
+<p><code>bodyToFlux</code> メソッドでFluxに変換することで1件ずつレスポンスを受け取れる。</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">webClient.get()
+    .uri("http://localhost:8080/delayedtexts")
+    .accept(MediaType.TEXT_EVENT_STREAM)
+    .retrieve()
+    .bodyToFlux(String.class);</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_stream_json形式のレスポンスを受け取る">stream json形式のレスポンスを受け取る</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Acceptヘッダに <code>application/stream+json</code> を指定する。</p>
+</li>
+<li>
+<p><code>bodyToFlux</code> メソッドでFluxに変換することで1件ずつレスポンスを受け取れる。</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">webClient.get()
+    .uri("http://localhost:8080/messages")
+    .accept(MediaType.TEXT_EVENT_STREAM)
+    .retrieve()
+    .bodyToFlux(Message.class);</code></pre>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_エラーハンドリング">エラーハンドリング</h3>
-
+<div class="ulist">
+<ul>
+<li>
+<p><code>WebClient</code> を利用したリクエストで4xxや5xxのステータスコードのレスポンスが返ってきた場合、 <code>WebClientResponseException</code> またはそのサブクラス（ステータスコードごと）がthrowされる。</p>
+</li>
+<li>
+<p>例外クラスをカスタマイズする場合、 <code>onStatus</code> メソッドを使用する。</p>
+</li>
+<li>
+<p>エラーハンドリングには、reactorの仕組みを利用する。</p>
+</li>
+<li>
+<p><code>onErrorResume(Class&lt;E&gt; type, Function&lt;? super E,? extends Publisher&lt;? extends T&gt;&gt; fallback)</code> メソッドを使うことで、特定の例外クラスの時の処理を実装できる。</p>
+</li>
+<li>
+<p><code>onErrorMap</code> メソッドを使うことで、例外クラスの変換を行うことができる。</p>
+</li>
+<li>
+<p><code>onStatus</code> メソッドを使うことで、レスポンスのステータスコードに応じた例外クラスの変換を行うことができる。</p>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_リトライ">リトライ</h3>
-
+<div class="ulist">
+<ul>
+<li>
+<p>元々、reactor-coreには単純なretry（無制限のリトライ・回数制限のリトライ）しかなく、複雑なリトライはreactor-extraとして提供されていた。</p>
+</li>
+<li>
+<p>v3.2.0以降、リトライの機能がreactor-core側に実装されてきており、reactor-extraを使ったリトライはduplicatedになっている。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://projectreactor.io/docs/core/release/reference/#extra-repeat-retry">Reactor 3 Reference Guide Appendix C: Reactor-Extra C3. Repeat and Retry Utilities</a></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Retry.indefinitely</p>
+<div class="ulist">
+<ul>
+<li>
+<p>リトライ間隔：すぐ</p>
+</li>
+<li>
+<p>リトライ回数：無限</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Retry.max</p>
+<div class="ulist">
+<ul>
+<li>
+<p>リトライ間隔：すぐ</p>
+</li>
+<li>
+<p>リトライ回数：引数指定</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Retry.maxInARow</p>
+<div class="ulist">
+<ul>
+<li>
+<p>リトライ間隔：すぐ</p>
+</li>
+<li>
+<p>リトライ回数：引数指定。ただし、onNextイベントが正常に発生するたびに回数はリセットされる。連続でn回エラーになった場合に終了する。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Retry.fixedDelay</p>
+<div class="ulist">
+<ul>
+<li>
+<p>リトライ間隔：引数で指定した時間</p>
+</li>
+<li>
+<p>リトライ回数：引数指定</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Retry.backoff</p>
+<div class="ulist">
+<ul>
+<li>
+<p>リトライ間隔：引数で指定した時間 * 2のn-1乗 + ゆらぎ（n：リトライ回数）</p>
+</li>
+<li>
+<p>リトライ回数：引数指定</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_spring_bootにおけるwebclient関連のauto_configuration">Spring BootにおけるWebClient関連のauto configuration</h3>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient" class="bare">https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient</a></p>
+<p>Spring Bootでは、以下のクラスをbean定義している。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>WebClient.Builder</code></p>
+</li>
+<li>
+<p><code>ReactorResourceFactory</code></p>
+</li>
+<li>
+<p><code>ReactorClientHttpConnector</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>WebClient</code> をカスタマイズする仕組みとして、 <code>WebClientCustomizer</code> を用意している。</p>
+</li>
+<li>
+<p><code>WebClient.Builder</code> を引数に取るメソッドを実装することにより、 `WebClient`をカスタマイズする。</p>
+</li>
+<li>
+<p><code>auto configurationの中で `WebClient.Builder</code> に <code>WebClientCustomizer</code> を適用するため、 <code>WebClient</code> 自体をbean定義してしまうと、この仕組みを利用できない。</p>
+</li>
+<li>
+<p>v2.3.0.RC1から <code>ReactNettyHttpClientMapper</code> が実装され、 <code>HttpClient</code> をカスタマイズできるようになった。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webclient">Spring Boot Reference Documentation 4.15. Calling REST Services with WebClient</a></p>
 </li>
 <li>
 <p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/WebClientAutoConfiguration.java">spring-boot/WebClientAutoConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
@@ -732,10 +979,16 @@ ClientHttpConnector clientHttpConnector(ReactorResourceFactory reactorResourceFa
 <p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
 </li>
 <li>
+<p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.M4/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/web/reactive/function/client/WebClientCustomizer.java">spring-boot/WebClientCustomizer.java at v2.3.0.M4 · spring-projects/spring-boot</a></p>
+</li>
+<li>
 <p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ClientHttpConnectorConfiguration.java">spring-boot/ClientHttpConnectorConfiguration.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
 </li>
 <li>
 <p><a href="https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot-autoconfigure/src/main/java/org/springframework/boot/autoconfigure/web/reactive/function/client/ReactorNettyHttpClientMapper.java">spring-boot/ReactorNettyHttpClientMapper.java at v2.3.0.RC1 · spring-projects/spring-boot</a></p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -760,12 +1013,61 @@ ClientHttpConnector clientHttpConnector(ReactorResourceFactory reactorResourceFa
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_resttemplateとwebclient">RestTemplateとWebClient</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Spring FrameworkではHTTP Clientとして <code>RestTemplate</code> がよく使用されていたが、v５.0でメンテナンスモードになり、WebClientの利用が推奨されている。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#webmvc-resttemplate">Web on Servlet Stack</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_memo">memo</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>検証項目</p>
+<div class="ulist">
+<ul>
+<li>
+<p>直列実行</p>
+</li>
+<li>
+<p>並列実行</p>
+</li>
+<li>
+<p>キャッシュ</p>
+</li>
+<li>
+<p>テスト</p>
+</li>
+<li>
+<p>コネクションプール</p>
+</li>
+<li>
+<p>リダイレクト</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-04 16:42:52 UTC
+Last updated 2020-05-07 13:53:04 UTC
 </div>
 </div>
 </body>
