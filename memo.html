@@ -1822,6 +1822,44 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 <div class="sect2">
 <h3 id="_prometheus"><a class="anchor" href="#_prometheus"></a>6.2. prometheus</h3>
+<div class="sect3">
+<h4 id="_spring_boot_actuator_prometheus"><a class="anchor" href="#_spring_boot_actuator_prometheus"></a>6.2.1. Spring Boot Actuator + Prometheus</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>spring-boot-starter-actuatorを依存関係に追加する</p>
+</li>
+<li>
+<p>micrometer-registry-prometheusを依存関係に追加する</p>
+</li>
+<li>
+<p>application.ymlの設定でprometheus向けのエンドポイントを公開する設定を記載する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>/actuator/prometheusが公開される</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="yaml"><span class="key">management</span>:
+  <span class="key">endpoints</span>:
+    <span class="key">web</span>:
+      <span class="key">exposure</span>:
+        <span class="key">include</span>: <span class="string"><span class="content">prometheus</span></span></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>prometheusの設定ファイルを作成する</p>
+</li>
+</ul>
+</div>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="shell">docker run -p 9090:9090 -v ${PWD}/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest</code></pre>
@@ -1840,6 +1878,10 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </li>
 </ul>
 </div>
+<div class="paragraph">
+<p><a href="https://grafana.com/grafana/dashboards/4701">JVM (Micrometer) dashboard for Grafana | Grafana Labs</a></p>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_reactor_nettyにおけるコネクションプール"><a class="anchor" href="#_reactor_nettyにおけるコネクションプール"></a>6.3. reactor-nettyにおけるコネクションプール</h3>
@@ -1856,7 +1898,7 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-07 13:53:04 UTC
+Last updated 2020-05-12 07:35:48 UTC
 </div>
 </div>
 <style>
