@@ -391,6 +391,26 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 
 === prometheus
 
+==== Spring Boot Actuator + Prometheus
+
+* spring-boot-starter-actuatorを依存関係に追加する
+* micrometer-registry-prometheusを依存関係に追加する
+* application.ymlの設定でprometheus向けのエンドポイントを公開する設定を記載する
+** /actuator/prometheusが公開される
+
+[source, yaml]
+----
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+----
+
+* prometheusの設定ファイルを作成する
+
+
+
 [source, shell]
 ----
 docker run -p 9090:9090 -v ${PWD}/docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus:latest
@@ -400,6 +420,8 @@ docker run -p 9090:9090 -v ${PWD}/docker/prometheus/prometheus.yml:/etc/promethe
 * link:https://qiita.com/AHA_oretama/items/01040d5277cd64c5d6b2[Spring Boot 2.0 でモニタリング 〜Micrometer〜 - Qiita]
 * link:https://projectreactor.io/docs/netty/release/api/reactor/netty/http/client/HttpClient.html#metrics-boolean-[HttpClient (Reactor Netty 0.9.6.RELEASE)]
 
+
+link:https://grafana.com/grafana/dashboards/4701[JVM (Micrometer) dashboard for Grafana | Grafana Labs]
 
 === reactor-nettyにおけるコネクションプール
 
