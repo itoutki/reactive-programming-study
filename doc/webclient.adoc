@@ -263,7 +263,8 @@ webClient.get()
 ** `spring-boot-starter-web` と `spring-boot-starter-webflux` を依存関係に加える。
 ** webとwebfluxの両方が依存関係に存在する場合、アプリケーションはwebとしての設定が優先される。
 *** link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-webflux[Spring Boot Reference Documentation]
-
+*** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/SpringApplication.java#L271[spring-boot/SpringApplication.java at v2.3.0.RC1 · spring-projects/spring-boot]
+*** link:https://github.com/spring-projects/spring-boot/blob/v2.3.0.RC1/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/WebApplicationType.java#L61[spring-boot/WebApplicationType.java at v2.3.0.RC1 · spring-projects/spring-boot]
 
 === RestTemplateとWebClient
 

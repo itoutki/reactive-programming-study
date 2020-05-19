@@ -1,0 +1,34 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+:source-highlighter: coderay
+
+= Spring WebFlux
+
+== Thymeleaf
+
+* コントローラクラスのメソッドの返り値を `String` にすることで、Viewの解決が行われる。
+* `Model#addAttribute` で `Mono` または `Flux` を渡すことができる。
+* `Model` に `Mono` または `Flux` を渡した場合の処理方法には3種類ある。
+** full mode
+*** テンプレートエンジンの中で全ての値を解決する。
+*** 出力結果は単一のDataBufferに展開される。
+** chunked mode
+*** テンプレートエンジンの中で全ての値を解決するが、指定したチャンクサイズごとに出力を行う。
+*** `application.yml` の `spring.thymeleaf.reactive.max-chunk-size` で指定したサイズごとに出力される。
+** data-driven mode
+*** 値が解決されたものからクライアントに返す。
+*** `Model#addAttribute` する際に、 `ReactiveDataDriverContextVariable` クラスでラップする必要がある。
+*** `ReactiveDataDriverContextVariable` のコンストラクタの第2引数で値の解決を行うバッチサイズを指定する。
+*** モデルに追加できる `ReactiveDataDriverContextVariable` は1つのみ。2つ以上追加するとエラーになる。
+
+* link:https://github.com/thymeleaf/thymeleafsandbox-biglist-reactive[thymeleaf/thymeleafsandbox-biglist-reactive: Sandbox application testing the render of large amounts of markup using Thymeleaf with Spring Web Reactive]
+* link:https://mkyong.com/spring-boot/spring-boot-webflux-thymeleaf-reactive-example/[Spring Boot WebFlux + Thymeleaf reactive example – Mkyong.com]
+
+
+== etc
+
+* WebFluxではRedirectAttributesはサポートしていないため、POST-Redirect-GETパターンを実装するにはクエリストリングやセッションを使用する必要がある。
