@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Reactive Programming Study</title>
+<title>Spring WebFlux入門</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,40 +436,134 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article toc2 toc-left">
+<body class="article">
 <div id="header">
-<h1>Reactive Programming Study</h1>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#_memo">1. memo</a></li>
-<li><a href="#_参考資料">2. 参考資料</a></li>
-</ul>
-</div>
+<h1>Spring WebFlux入門</h1>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_memo"><a class="anchor" href="#_memo"></a>1. memo</h2>
+<h2 id="_vol1_概要">vol1. 概要</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="memo.html">メモ</a></p>
+<p>従来のServletベースのWebアプリケーションにおける課題</p>
+<div class="ulist">
+<ul>
+<li>
+<p>1つのリクエストを1つのスレッドで処理</p>
+</li>
+<li>
+<p>大量のリクエストを処理するためには大量のスレッドが必要</p>
+</li>
+<li>
+<p>大量のスレッドを使うためには大量のメモリが必要</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>少ないスレッドで大量のリクエストを処理できるようにしたい = ノンブロッキングI/O + イベントループ</p>
+</li>
+<li>
+<p>Spring WebFluxとは</p>
+<div class="ulist">
+<ul>
+<li>
+<p>非同期 + ノンブロッキングI/O + イベントループ方式のWebアプリケーションフレームワーク</p>
+</li>
+<li>
+<p>非同期 + ノンブロッキングI/O + イベントループ方式のアプリケーションサーバであるNettyや、サーブレットコンテナのノンブロッキングI/O(Servlet 3.1以降)を利用している</p>
+</li>
+<li>
+<p>ノンブロッキング + 非同期処理を扱うライブラリとしてReactorを採用している</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Reactorとは</p>
+<div class="ulist">
+<ul>
+<li>
+<p>ノンブロッキング + 非同期処理を扱うためのライブラリ</p>
+</li>
+<li>
+<p>リアクティブプログラミングを採用している</p>
+</li>
+<li>
+<p>Reactive Streamsに対応している</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>リアクティブプログラミングとは</p>
+<div class="ulist">
+<ul>
+<li>
+<p>リアクティブプログラミング≒イベントドリブン</p>
+</li>
+<li>
+<p>何らかのイベントを契機にプログラムが反応し、処理を行うように実装する</p>
+</li>
+<li>
+<p>例）「◯◯のイベントが発生したら呼び出され、xxの処理を実行する」</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Reactive Streamsとは</p>
+<div class="ulist">
+<ul>
+<li>
+<p>ノンブロッキング + 非同期処理を扱うための標準</p>
+</li>
+<li>
+<p>バックプレッシャーという仕組みを定義している</p>
+</li>
+<li>
+<p>Reactorのほか、RxJava/Akka/Vert.xなどのライブラリもReactive Streamsに対応している</p>
+</li>
+<li>
+<p>JDK 9から導入された Flow APIもReactive Streamsに対応している</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_参考資料"><a class="anchor" href="#_参考資料"></a>2. 参考資料</h2>
+<h2 id="_vol2_reactor">vol2. Reactor</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vol3_webclient">vol3. WebClient</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="references.html">参考資料</a></p>
+<p>Spring WebFluxの機能の一つ</p>
+</li>
+<li>
+<p>ノンブロッキング + 非同期なHTTPクライアント</p>
+</li>
+<li>
+<p>Spring MVCアプリケーション上で使用することもできる</p>
 </li>
 </ul>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_vol4_spring_webflux">vol4. Spring WebFlux</h2>
+<div class="sectionbody">
+
 </div>
 </div>
 </div>

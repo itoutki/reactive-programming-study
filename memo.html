@@ -490,6 +490,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_reactor_nettyにおけるコネクションプール">6.3. reactor-nettyにおけるコネクションプール</a></li>
 </ul>
 </li>
+<li><a href="#_reactor_context">7. Reactor Context</a></li>
 </ul>
 </div>
 </div>
@@ -1901,10 +1902,26 @@ $ curl -v -H 'Accept: application/stream+json;' http://localhost:8080/messages
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_reactor_context"><a class="anchor" href="#_reactor_context"></a>7. Reactor Context</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>オペレータなどのコンポーネントをまたいで値を伝播させるためのキーバリューストア</p>
+</li>
+<li>
+<p>下流から上流に伝播する
+*</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-19 07:01:05 UTC
+Last updated 2020-05-25 07:04:09 UTC
 </div>
 </div>
 <style>

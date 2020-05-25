@@ -529,6 +529,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li>
 <p>WebFluxではRedirectAttributesはサポートしていないため、POST-Redirect-GETパターンを実装するにはクエリストリングやセッションを使用する必要がある。</p>
 </li>
+<li>
+<p>WebFluxでは@SessionScopeをサポートしていないため、@SessionAttributesまたは自前の管理が必要となる。</p>
+</li>
+<li>
+<p>Mono&lt;LoginForm&gt; loginForm &#8594; "loginFormMono"</p>
+</li>
+<li>
+<p>@ModelAttribute("loginForm") Mono&lt;LoginForm&gt; loginForm &#8594; "loginForm"</p>
+</li>
+<li>
+<p>(WebExchangeBindException) e.getObjectName() &#8594; "loginForm"</p>
+</li>
 </ul>
 </div>
 </div>
@@ -536,7 +548,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-05-19 07:01:05 UTC
+Last updated 2020-05-25 07:04:09 UTC
 </div>
 </div>
 </body>
