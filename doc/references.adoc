@@ -30,7 +30,7 @@
 * link:https://www.youtube.com/watch?v=1F10gr2pbvQ[GOTO 2019 Reactive Spring Josh Long]
 * link:https://bufferings.hatenablog.com/entry/2018/03/27/233152[SpringBoot2のBlocking Web vs Reactive WebについてLTしてきた - Mitsuyuki.Shiiba]
 * link:https://docs.google.com/presentation/d/1-0NopTfA-CGiCNvKPDOH9ZDMHhazKuoT-_1R69Wp8qs[Functional Spring Cookbook]
-
+* link:https://www.slideshare.net/TakuyaIwatsuka/spring-5[Spring 5に備えるリアクティブプログラミング入門]
 == RSocket関連
 * link:https://docs.google.com/presentation/d/1ygSM85-RQ3NZjCg6RaZ52mGzxbWiItVwzlCpr1vaWBw/edit?usp=sharing[RSocket徹底入門]
 
@@ -75,3 +75,5 @@
 * link:https://spring.io/blog/2020/05/07/tanzu-observability-by-wavefront-spring-boot-starter[Tanzu Observability by Wavefront Spring Boot Starter]
 * link:https://spring.io/blog/2020/04/06/getting-started-with-rsocket-spring-boot-channels[Getting Started With RSocket: Spring Boot Channels]
 * link:https://www.slideshare.net/TsukasaTamaru/jsug-spring-boot-a-contact-57701801[Jsug spring bootコードリーディング 接触篇 a contact]
+* link:https://technology.amis.nl/2020/04/10/spring-blocking-vs-non-blocking-r2dbc-vs-jdbc-and-webflux-vs-web-mvc/[Spring: Blocking vs non-blocking: R2DBC vs JDBC and WebFlux vs Web MVC]
+* link:https://medium.com/@jaidenashmore/jwt-authentication-in-spring-boot-webflux-6880c96247c7[JWT Authentication in Spring Boot Webflux - Jaiden Ashmore - Medium]

@@ -426,3 +426,10 @@ link:https://grafana.com/grafana/dashboards/4701[JVM (Micrometer) dashboard for 
 === reactor-nettyにおけるコネクションプール
 
 * link:https://projectreactor.io/docs/netty/snapshot/reference/index.html#_connection_pool[Reactor Netty Reference Guide]
+
+
+== Reactor Context
+
+* オペレータなどのコンポーネントをまたいで値を伝播させるためのキーバリューストア
+* 下流から上流に伝播する
+* 
