@@ -77,3 +77,4 @@
 * link:https://www.slideshare.net/TsukasaTamaru/jsug-spring-boot-a-contact-57701801[Jsug spring bootコードリーディング 接触篇 a contact]
 * link:https://technology.amis.nl/2020/04/10/spring-blocking-vs-non-blocking-r2dbc-vs-jdbc-and-webflux-vs-web-mvc/[Spring: Blocking vs non-blocking: R2DBC vs JDBC and WebFlux vs Web MVC]
 * link:https://medium.com/@jaidenashmore/jwt-authentication-in-spring-boot-webflux-6880c96247c7[JWT Authentication in Spring Boot Webflux - Jaiden Ashmore - Medium]
+* link:https://spring.io/blog/2020/05/25/getting-started-with-rsocket-testing-spring-boot-responders[Getting Started With RSocket: Testing Spring Boot Responders]

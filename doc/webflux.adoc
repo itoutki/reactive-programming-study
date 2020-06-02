@@ -8,7 +8,7 @@
 
 = Spring WebFlux
 
-== Thymeleaf
+== Thymeleaf連携
 
 * コントローラクラスのメソッドの返り値を `String` にすることで、Viewの解決が行われる。
 * `Model#addAttribute` で `Mono` または `Flux` を渡すことができる。
@@ -31,8 +31,55 @@
 
 == etc
 
-* WebFluxではRedirectAttributesはサポートしていないため、POST-Redirect-GETパターンを実装するにはクエリストリングやセッションを使用する必要がある。
-* WebFluxでは@SessionScopeをサポートしていないため、@SessionAttributesまたは自前の管理が必要となる。
-* Mono<LoginForm> loginForm -> "loginFormMono"
-* @ModelAttribute("loginForm") Mono<LoginForm> loginForm -> "loginForm"
-* (WebExchangeBindException) e.getObjectName() -> "loginForm"
+=== Model上のデフォルト属性名
+
+* ハンドラーメソッドのModel Attribute引数にリアクティブ側を指定した場合、属性名の末尾にMonoがつく。
+* 例えば、Model Attribute引数が `Mono<SampleForm> sampleForm` の場合、属性名は `sampleFormMono` となる。
+
+=== @SessionScope未サポート対応
+
+* WebFluxでは@SessionScopeをサポートしていないため、ControllerをまたいだSessionの共有を行うためには、自前で管理する必要がある。
+** TODO : Spring Securityでは認証情報をどのように管理しているか調べる。
+** TODO : Spring Sessionとの組み合わせについて調べる。
+** link:https://stackoverflow.com/questions/54690206/is-it-possible-to-achieve-session-scope-behavior-in-spring-webflux[java - Is it possible to achieve session scope behavior in Spring WebFlux? - Stack Overflow]
+
+=== RedirectAttributes未サポート対応
+
+* Spring MVCにおけるRedirectAttributesはThreadLocalを使用しているため、WebFluxではサポートしていない。
+* WebFluxでPOST-Redirect-GETパターンを実装するためには、セッションを使用してflash attribute相当の仕組みを自前で実装する必要がある。
+
+** link:https://github.com/spring-projects/spring-framework/issues/20575[Webflux support for flash attributes [SPR-16026] · Issue #20575 · spring-projects/spring-framework]
+** link:https://stackoverflow.com/questions/46474452/redirectattributes-not-working-with-spring-5[java - RedirectAttributes not working with Spring 5 - Stack Overflow]
+
+=== バリデーション
+
+* ハンドラーメソッドの引数にリアクティブ型を使用する場合、ハンドラーメソッドの引数にBindingResultを使用することはできない。
+* ハンドラーメソッドの引数にリアクティブ型を使用する場合、onErrorResumeオペレータを使用してWebExchangeBindExceptionをハンドリングする。
+* WebExchangeBindExceptionにはBindingResultが格納されており、#getBindingResultメソッドで取得できる。
+* ハンドラーメソッドの引数にリアクティブ型を使用しない場合には、Spring MVCと同様にBindingResultを使用できる。
+
+[source, java]
+----
+----
+
+** link:https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-ann-modelattrib-method-args[Web on Reactive Stack]
+** link:https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/support/WebExchangeBindException.html[WebExchangeBindException (Spring Framework 5.2.6.RELEASE API)]
+
+
+=== エラーハンドリング
+
+=== ロギング
+
+
+=== セッション
+
+=== フィルタ
+
+=== 認証認可
+
+=== 性能評価
+
+
+=== TODO
+
+* ハンドラーメソッドの引数をリアクティブ型にした場合・しない場合でどのような違いがあるか（ブロッキング処理になるか、など）調べる。
