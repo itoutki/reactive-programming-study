@@ -641,7 +641,86 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div class="sect2">
 <h3 id="_セッション"><a class="anchor" href="#_セッション"></a>2.7. セッション</h3>
-
+<div class="ulist">
+<ul>
+<li>
+<p><code>@SessionAttributes</code> アノテーションを使用して、Controllerの範囲でセッション情報を管理する。</p>
+</li>
+<li>
+<p>ハンドラメソッドの引数に <code>WebSession</code> を指定し、セッションへのデータの追加・削除を行う。</p>
+</li>
+<li>
+<p>ハンドラメソッドの引数で <code>@SessionAttribute</code> を指定し、セッションのデータを参照する。</p>
+</li>
+<li>
+<p>セッションタイムアウトの時間を変更する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>InMemoryWebSessionStoreを拡張する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDを保持するCookieをカスタマイズする</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CookieWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDをHeaderで保持する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>HeaderWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Spring Sessionを使用する場合</p>
+<div class="ulist">
+<ul>
+<li>
+<p>セッションタイムアウトの時間を変更する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>application.ymlのspring.session.timeoutで指定する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDを保持するCookieをカスタマイズする</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CookieWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDをHeaderで保持する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>HeaderWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_フィルタ"><a class="anchor" href="#_フィルタ"></a>2.8. フィルタ</h3>
@@ -670,7 +749,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-06-02 06:54:25 UTC
+Last updated 2020-06-09 06:47:29 UTC
 </div>
 </div>
 </body>
