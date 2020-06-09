@@ -70,8 +70,26 @@
 
 === ロギング
 
-
 === セッション
+
+* `@SessionAttributes` アノテーションを使用して、Controllerの範囲でセッション情報を管理する。
+* ハンドラメソッドの引数に `WebSession` を指定し、セッションへのデータの追加・削除を行う。
+* ハンドラメソッドの引数で `@SessionAttribute` を指定し、セッションのデータを参照する。
+
+* セッションタイムアウトの時間を変更する
+** InMemoryWebSessionStoreを拡張する
+* セッションIDを保持するCookieをカスタマイズする
+** CookieWebSessionIdResolverを利用する
+* セッションIDをHeaderで保持する
+** HeaderWebSessionIdResolverを利用する
+
+* Spring Sessionを使用する場合
+** セッションタイムアウトの時間を変更する
+*** application.ymlのspring.session.timeoutで指定する
+** セッションIDを保持するCookieをカスタマイズする
+*** CookieWebSessionIdResolverを利用する
+** セッションIDをHeaderで保持する
+*** HeaderWebSessionIdResolverを利用する
 
 === フィルタ
 
