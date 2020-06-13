@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>参考資料</title>
+<title>今から始めるWebClient</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,248 +438,219 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>参考資料</h1>
+<h1>今から始めるWebClient</h1>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_reactor関連">Reactor関連</h2>
+<h2 id="_今日話すこと">今日話すこと</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://www.reactive-streams.org/">https://www.reactive-streams.org</a></p>
+<p>SpringアプリケーションのHTTP ClientとしてWebClientを使っていこう</p>
 </li>
 <li>
-<p><a href="https://github.com/reactive-streams/reactive-streams-jvm">reactive-streams/reactive-streams-jvm: Reactive Streams Specification for the JVM</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/rubytomato@github/items/40c2aeabf762cc9465ad">Reactive StreamsとJDK 9 Flow APIの入門メモ - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://projectreactor.io/">Project Reactor</a></p>
-</li>
-<li>
-<p><a href="https://projectreactor.io/docs/core/release/reference/">Reactor 3 Reference Guide</a></p>
-</li>
-<li>
-<p><a href="https://github.com/reactor/reactor-core">reactor/reactor-core: Non-Blocking Reactive Foundation for the JVM</a></p>
-</li>
-<li>
-<p><a href="https://github.com/reactor/head-first-reactive-with-spring-and-reactor">reactor/head-first-reactive-with-spring-and-reactor</a></p>
-</li>
-<li>
-<p><a href="https://www.infoq.com/articles/reactor-by-example/">Reactor by Example</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/sugibuchi/items/e933ae4b5ec512054de2">Reactor Core 2.5: もう一つのJava向けReactive Extensions実装 - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/toastkidjp/items/6edad417753eff51ce0a">Reactor Core 3.x のハンズオン "Lite Rx API Hands-on"をやってみる - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/d-yosh/items/d78b72dc48b560889110">Lite Rx API Hands-on やってみた - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://kazuhira-r.hatenablog.com/entry/20180103/1514986183">3.1からやり直すReactor Core／Test - CLOVER🍀</a></p>
-</li>
-<li>
-<p><a href="https://kazuhira-r.hatenablog.com/entry/20180107/1515327957">ReactorのSchedulerをちょっと見てみる - CLOVER🍀</a></p>
-</li>
-<li>
-<p><a href="https://cero-t.hatenadiary.jp/entry/20171215/1513290305">ReactorでN+1問題な処理を実装してみた話 - 谷本 心 in せろ部屋</a></p>
+<p>WebClientの始め方</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_spring_webflux関連">Spring WebFlux関連</h2>
+<h2 id="_今日話さないこと">今日話さないこと</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html">Web on Reactive Stack</a></p>
+<p>WebFlux</p>
 </li>
 <li>
-<p><a href="https://www.slideshare.net/makingx/introduction-to-spring-webflux-jsug-sfa1">Introduction to Spring WebFlux #jsug #sf_a1</a></p>
+<p>Reactor(Mono, Flux)</p>
 </li>
 <li>
-<p><a href="https://engineering.linecorp.com/ja/blog/reactive-streams-with-armeria-1/">Let’s play Reactive Streams with Armeria vol.1</a></p>
+<p>JettyベースのWebClient</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_webclientってなに">WebClientってなに？</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Reactor NettyベースのノンブロッキングなHTTP Client</p>
 </li>
 <li>
-<p><a href="https://engineering.linecorp.com/ja/blog/reactive-streams-with-armeria-2/">Let’s play Reactive Streams with Armeria vol.2</a></p>
+<p>Spring WebFluxに同梱されている</p>
 </li>
+<li>
+<p>Spring MVCでも使える</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_なぜwebclient">なぜWebClient？</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>SpringにおけるHTTP Clientといえば、RestTemplate</p>
+</li>
+<li>
+<p>RestTemplateはSpring 5.0でメンテナンスモードになり、WebClientの利用が推奨されるようになっている</p>
+</li>
+<li>
+<p>並列処理を実装しやすい</p>
+</li>
+<li>
+<p>Backend for Frontendのように、複数のAPIを呼び出して結果を集約したいといったユースケースを実装しやすい</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_webclientの始め方_spring_boot_mvc_webclient">WebClientの始め方 - Spring Boot (MVC) + WebClient</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>spring-boot-starter-webとspring-boot-startet-webfluxを依存関係に加える</p>
+<div class="ulist">
+<ul>
+<li>
+<p>両方が依存関係に含まれる場合、Spring MVCタイプのアプリケーションとして起動する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>WebClient.Builderをインジェクションし、WebClientを生成する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>WebClient.BuilderはSpring Bootのauto configurationによってBean定義されている</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Component
+public class WebClientSample {
+    private final WebClient webClient;
+
+    public WebClientSample(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_webclientの基本的な使い方">WebClientの基本的な使い方</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_getリクエスト">GETリクエスト</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public JsonNode get() {
+    return webClient.get()                          // リクエストメソッドを指定
+            .uri("https://httpbin.org/delay/1")     // URLを指定
+            .retrieve()                             // リクエスト実行
+            .bodyToMono(JsonNode.class)             // レスポンスをオブジェクト（リアクティブ型）にマッピング
+            .block();                               // リアクティブ型から通常のオブジェクトを取得
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_postリクエスト">POSTリクエスト</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">public JsonNode post() {
+    return webClient.post()                             // リクエストメソッドを指定
+            .uri("https://httpbin.org/delay/1")         // URLを指定
+            .contentType(MediaType.APPLICATION_JSON)    // コンテンツタイプを指定
+            .bodyValue(new Message("Hello WebClient"))  // POSTのボディを指定
+            .retrieve()                                 // リクエスト実行
+            .bodyToMono(JsonNode.class)                 // レスポンスをオブジェクト（リアクティブ型）にマッピング
+            .block();                                   // リアクティブ型から通常のオブジェクトを取得
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_webclientのカスタマイズ">WebClientのカスタマイズ</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>WebClientCustomizerインタフェースを実装したクラスを作成してWebClient.Builderをカスタマイズ</p>
+</li>
+<li>
+<p>ReactorNettyHttpClientMapperインタフェースを実装したクラスを作成してWebClientが内部的に使用しているHttpClientをカスタマイズ</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_タイムアウトの設定">タイムアウトの設定</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-java" data-lang="java">@Component
+public class ReactorNettyHttpClientTimeoutMapper implements ReactorNettyHttpClientMapper {
+    @Override
+    public HttpClient configure(HttpClient httpClient) {
+        return httpClient.tcpConfiguration((tcpClient -&gt; {
+            return tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // コネクションタイムアウト（ミリ秒で設定）
+                    .doOnConnected(conn -&gt; conn
+                        .addHandlerLast(new ReadTimeoutHandler(30))             // リードタイムアウト（秒で設定）
+                        .addHandlerLast(new WriteTimeoutHandler(30)));          // ライトタイムアウト（秒で設定）
+        }));
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_まとめ">まとめ</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Spring Boot (MVC)でもWebClientを積極的に使っていこう</p>
+</li>
+<li>
+<p>WebClientをきっかけにしてWebFlux/Reactorも触ってみよう</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考資料">参考資料</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
 <li>
 <p><a href="https://speakerdeck.com/shintanimoto/introduction-to-reactive-programming-using-spring-webflux">業務で使いたいWebFluxによるReactiveプログラミング / Introduction to Reactive Programming using Spring WebFlux - Speaker Deck</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/d-yosh/items/87f4141be284a08f09bb">Spring WebFlux + Redis でリアルタイムチャットを作ってみた - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/ota-meshi/items/2c01b118d9d1890cc97b">100万件データをサーバーから取得してブラウザに表示させるのにSpring WebFlux使ったら初期描画が速くなると思ったのでやってみた - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://www.kimullaa.com/entry/2018/04/25/214708">Spring WebFlux の概要を理解する - SIerだけど技術やりたいブログ</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/yut_arrows/items/5c56c81b89b1e8ae4bf4">ゼロから始めるSpring WebFlux - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://www.slideshare.net/makingx/reactive-web-spring-5-jjugccc-cccef3">Reactive Webアプリケーション - そしてSpring 5へ #jjug_ccc #ccc_ef3</a></p>
-</li>
-<li>
-<p><a href="https://www.youtube.com/watch?v=1F10gr2pbvQ">GOTO 2019 Reactive Spring Josh Long</a></p>
-</li>
-<li>
-<p><a href="https://bufferings.hatenablog.com/entry/2018/03/27/233152">SpringBoot2のBlocking Web vs Reactive WebについてLTしてきた - Mitsuyuki.Shiiba</a></p>
 </li>
 <li>
 <p><a href="https://docs.google.com/presentation/d/1-0NopTfA-CGiCNvKPDOH9ZDMHhazKuoT-_1R69Wp8qs">Functional Spring Cookbook</a></p>
 </li>
 <li>
-<p><a href="https://www.slideshare.net/TakuyaIwatsuka/spring-5">Spring 5に備えるリアクティブプログラミング入門</a>
-== RSocket関連</p>
-</li>
-<li>
-<p><a href="https://docs.google.com/presentation/d/1ygSM85-RQ3NZjCg6RaZ52mGzxbWiItVwzlCpr1vaWBw/edit?usp=sharing">RSocket徹底入門</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_その他">その他</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="https://www.reactivemanifesto.org/ja/glossary">用語集 - リアクティブ宣言</a></p>
-</li>
-<li>
-<p><a href="https://blog.takanabe.tokyo/2015/03/%E3%83%8E%E3%83%B3%E3%83%96%E3%83%AD%E3%83%83%E3%82%AD%E3%83%B3%E3%82%B0i/o%E3%81%A8%E9%9D%9E%E5%90%8C%E6%9C%9Fi/o%E3%81%AE%E9%81%95%E3%81%84%E3%82%92%E7%90%86%E8%A7%A3%E3%81%99%E3%82%8B/">ノンブロッキングI/Oと非同期I/Oの違いを理解する</a></p>
-</li>
-<li>
-<p><a href="https://yuk1tyd.hatenablog.com/entry/2018/03/10/145159">java.nio を使って簡単な HTTP サーバーを作ってみる: ノンブロッキングなHTTP サーバー - Don&#8217;t Repeat Yourself</a></p>
-</li>
-<li>
-<p><a href="https://projectreactor.io/docs/netty/snapshot/reference/index.html">Reactor Netty Reference Guide</a></p>
-</li>
-<li>
-<p><a href="https://www.slideshare.net/mikeneck/jjug-ccc-2018-spring-i7-netty">JJUG CCC 2018 Spring - I-7 (俺が)はじめての Netty</a></p>
-</li>
-<li>
-<p><a href="https://mike-neck.hatenadiary.com/entry/2018/07/24/073000">Netty で HTTP クライアントを記述する - mike-neckのブログ</a></p>
-</li>
-<li>
-<p><a href="https://fatrow.hatenadiary.org/entry/20110208/netty">Netty の基本 - hozumiの日記</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/haoyu_ma/items/e1989ae752500521825b">Nettyを使ってサーバーを実装してみた - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://qiita.com/cypher256/items/347f86ba10075debe6e6">Spring Boot 爆速パフォーマンスアップ - Qiita</a></p>
-</li>
-<li>
-<p><a href="https://mkyong.com/spring-boot/spring-boot-webflux-thymeleaf-reactive-example/">Spring Boot WebFlux + Thymeleaf reactive example – Mkyong.com</a></p>
-</li>
-<li>
-<p><a href="https://github.com/thymeleaf/thymeleafsandbox-biglist-reactive">thymeleaf/thymeleafsandbox-biglist-reactive: Sandbox application testing the render of large amounts of markup using Thymeleaf with Spring Web Reactive</a></p>
-</li>
-<li>
-<p><a href="https://bclozel.github.io/webflux-workshop/">MathContext</a></p>
-</li>
-<li>
-<p><a href="https://mkyong.com/spring-boot/spring-boot-webflux-server-sent-events-example/?utm_source=mkyong.com&amp;utm_medium=referral&amp;utm_campaign=afterpost-related&amp;utm_content=link0">Spring Boot WebFlux + Server-sent events example – Mkyong.com</a></p>
-</li>
-<li>
-<p><a href="https://www.slideshare.net/TakuyaIwatsuka/spring-io2017-reportthymeleaf">Spring I/O 2017 報告 ThymeleafのWebFlux対応</a></p>
-</li>
-<li>
-<p><a href="https://kagamihoge.hatenablog.com/entry/2018/07/07/153207">spring bootとthymeleafでfragmentsを使用してajaxをする - kagamihogeの日記</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/05/12/getting-started-with-rsocket-servers-calling-clients">Getting Started With RSocket: Servers Calling Clients</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/03/02/getting-started-with-rsocket-spring-boot-server">Getting Started With RSocket: Spring Boot Server</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/04/06/getting-started-with-rsocket-spring-boot-channels">Getting Started With RSocket: Spring Boot Channels</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/03/27/dynamicpropertysource-in-spring-framework-5-2-5-and-spring-boot-2-2-6">@DynamicPropertySource in Spring Framework 5.2.5 and Spring Boot 2.2.6</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/03/25/liveness-and-readiness-probes-with-spring-boot">Liveness and Readiness Probes with Spring Boot</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/03/23/getting-started-with-rsocket-spring-boot-request-stream">Getting Started With RSocket: Spring Boot Request-Stream</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/03/16/getting-started-with-rsocket-spring-boot-fire-and-forget">Getting Started With RSocket: Spring Boot Fire-And-Forget</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/03/09/getting-started-with-rsocket-spring-boot-client">Getting Started With RSocket: Spring Boot Client</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/03/02/getting-started-with-rsocket-spring-boot-server">Getting Started With RSocket: Spring Boot Server</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/01/17/spring-vault-2-2-1-release-and-2-1-5-release-available">Spring Vault 2.2.1.RELEASE and 2.1.5.RELEASE available</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/01/14/reactive-bookstore-service-broker">Reactive BookStore Service Broker</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/12/13/flight-of-the-flux-3-hopping-threads-and-schedulers">Flight of the Flux 3 - Hopping Threads and Schedulers</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/12/06/spring-data-r2dbc-goes-ga">Spring Data R2DBC goes GA</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/12/03/spring-framework-maintenance-roadmap-in-2020-including-4-3-eol">Spring Framework maintenance roadmap in 2020 (including 4.3 EOL)</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/10/22/the-reactive-revolution-at-springone-platform-2019-part-2-n">The Reactive Revolution at SpringOne Platform 2019 (part 2/N)</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/10/15/simple-event-driven-microservices-with-spring-cloud-stream">Simple Event Driven Microservices with Spring Cloud Stream</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/10/14/spring-cloud-stream-demystified-and-simplified">Spring Cloud Stream - demystified and simplified</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/05/16/reactive-transactions-with-spring">Reactive Transactions with Spring</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/04/16/flight-of-the-flux-2-debugging-caveats">Flight of the Flux 2 - Debugging Caveats</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/04/03/spring-tips-webmvc-fn-the-functional-dsl-for-spring-mvc">Spring Tips: WebMvc.fn - the functional DSL for Spring MVC</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/03/28/reactor-debugging-experience">Reactor Debugging Experience</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2019/03/06/flight-of-the-flux-1-assembly-vs-subscription">Flight of the Flux 1 - Assembly vs Subscription</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/05/07/tanzu-observability-by-wavefront-spring-boot-starter">Tanzu Observability by Wavefront Spring Boot Starter</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/04/06/getting-started-with-rsocket-spring-boot-channels">Getting Started With RSocket: Spring Boot Channels</a></p>
-</li>
-<li>
-<p><a href="https://www.slideshare.net/TsukasaTamaru/jsug-spring-boot-a-contact-57701801">Jsug spring bootコードリーディング 接触篇 a contact</a></p>
-</li>
-<li>
-<p><a href="https://technology.amis.nl/2020/04/10/spring-blocking-vs-non-blocking-r2dbc-vs-jdbc-and-webflux-vs-web-mvc/">Spring: Blocking vs non-blocking: R2DBC vs JDBC and WebFlux vs Web MVC</a></p>
-</li>
-<li>
-<p><a href="https://medium.com/@jaidenashmore/jwt-authentication-in-spring-boot-webflux-6880c96247c7">JWT Authentication in Spring Boot Webflux - Jaiden Ashmore - Medium</a></p>
-</li>
-<li>
-<p><a href="https://spring.io/blog/2020/05/25/getting-started-with-rsocket-testing-spring-boot-responders">Getting Started With RSocket: Testing Spring Boot Responders</a></p>
+<p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#webmvc-resttemplate">Web on Servlet Stack - 2.1. RestTemplate</a></p>
 </li>
 </ul>
 </div>
