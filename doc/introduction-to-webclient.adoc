@@ -1,0 +1,110 @@
+= 今から始めるWebClient
+
+== 今日話すこと
+
+* SpringアプリケーションのHTTP ClientとしてWebClientを使っていこう
+* WebClientの始め方
+
+== 今日話さないこと
+
+* WebFlux
+* Reactor(Mono, Flux)
+* JettyベースのWebClient
+
+== WebClientってなに？
+
+* Reactor NettyベースのノンブロッキングなHTTP Client
+* Spring WebFluxに同梱されている
+* Spring MVCでも使える
+
+== なぜWebClient？
+
+* SpringにおけるHTTP Clientといえば、RestTemplate
+* RestTemplateはSpring 5.0でメンテナンスモードになり、WebClientの利用が推奨されるようになっている
+
+* 並列処理を実装しやすい
+* Backend for Frontendのように、複数のAPIを呼び出して結果を集約したいといったユースケースを実装しやすい
+
+== WebClientの始め方 - Spring Boot (MVC) + WebClient
+
+* spring-boot-starter-webとspring-boot-startet-webfluxを依存関係に加える
+** 両方が依存関係に含まれる場合、Spring MVCタイプのアプリケーションとして起動する
+
+* WebClient.Builderをインジェクションし、WebClientを生成する
+** WebClient.BuilderはSpring Bootのauto configurationによってBean定義されている
+
+[source, java]
+----
+@Component
+public class WebClientSample {
+    private final WebClient webClient;
+
+    public WebClientSample(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+}
+----
+
+== WebClientの基本的な使い方
+
+=== GETリクエスト
+
+[source, java]
+----
+public JsonNode get() {
+    return webClient.get()                          // リクエストメソッドを指定
+            .uri("https://httpbin.org/delay/1")     // URLを指定
+            .retrieve()                             // リクエスト実行
+            .bodyToMono(JsonNode.class)             // レスポンスをオブジェクト（リアクティブ型）にマッピング
+            .block();                               // リアクティブ型から通常のオブジェクトを取得
+}
+----
+
+=== POSTリクエスト
+
+[source, java]
+----
+public JsonNode post() {
+    return webClient.post()                             // リクエストメソッドを指定
+            .uri("https://httpbin.org/delay/1")         // URLを指定
+            .contentType(MediaType.APPLICATION_JSON)    // コンテンツタイプを指定
+            .bodyValue(new Message("Hello WebClient"))  // POSTのボディを指定
+            .retrieve()                                 // リクエスト実行
+            .bodyToMono(JsonNode.class)                 // レスポンスをオブジェクト（リアクティブ型）にマッピング
+            .block();                                   // リアクティブ型から通常のオブジェクトを取得
+}
+----
+
+== WebClientのカスタマイズ
+
+* WebClientCustomizerインタフェースを実装したクラスを作成してWebClient.Builderをカスタマイズ
+* ReactorNettyHttpClientMapperインタフェースを実装したクラスを作成してWebClientが内部的に使用しているHttpClientをカスタマイズ
+
+=== タイムアウトの設定
+
+[source, java]
+----
+@Component
+public class ReactorNettyHttpClientTimeoutMapper implements ReactorNettyHttpClientMapper {
+    @Override
+    public HttpClient configure(HttpClient httpClient) {
+        return httpClient.tcpConfiguration((tcpClient -> {
+            return tcpClient.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000) // コネクションタイムアウト（ミリ秒で設定）
+                    .doOnConnected(conn -> conn
+                        .addHandlerLast(new ReadTimeoutHandler(30))             // リードタイムアウト（秒で設定）
+                        .addHandlerLast(new WriteTimeoutHandler(30)));          // ライトタイムアウト（秒で設定）
+        }));
+    }
+}
+----
+
+== まとめ
+
+* Spring Boot (MVC)でもWebClientを積極的に使っていこう
+* WebClientをきっかけにしてWebFlux/Reactorも触ってみよう
+
+== 参考資料
+
+* link:https://speakerdeck.com/shintanimoto/introduction-to-reactive-programming-using-spring-webflux[業務で使いたいWebFluxによるReactiveプログラミング / Introduction to Reactive Programming using Spring WebFlux - Speaker Deck]
+* link:https://docs.google.com/presentation/d/1-0NopTfA-CGiCNvKPDOH9ZDMHhazKuoT-_1R69Wp8qs[Functional Spring Cookbook]
+* link:https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#webmvc-resttemplate[Web on Servlet Stack - 2.1. RestTemplate]
