@@ -22,6 +22,7 @@
 * SpringにおけるHTTP Clientといえば、RestTemplate
 * RestTemplateはSpring 5.0でメンテナンスモードになり、WebClientの利用が推奨されるようになっている
 
+
 * 並列処理を実装しやすい
 * Backend for Frontendのように、複数のAPIを呼び出して結果を集約したいといったユースケースを実装しやすい
 
@@ -105,6 +106,8 @@ public class ReactorNettyHttpClientTimeoutMapper implements ReactorNettyHttpClie
 
 == 参考資料
 
+* link:https://github.com/itoutki/introduction-to-webclient[itoutki/introduction-to-webclient]
 * link:https://speakerdeck.com/shintanimoto/introduction-to-reactive-programming-using-spring-webflux[業務で使いたいWebFluxによるReactiveプログラミング / Introduction to Reactive Programming using Spring WebFlux - Speaker Deck]
 * link:https://docs.google.com/presentation/d/1-0NopTfA-CGiCNvKPDOH9ZDMHhazKuoT-_1R69Wp8qs[Functional Spring Cookbook]
+* link:link:https://blog.ik.am/entries/467[BLOG.IK.AM]
 * link:https://docs.spring.io/spring/docs/current/spring-framework-reference/web.html#webmvc-resttemplate[Web on Servlet Stack - 2.1. RestTemplate]

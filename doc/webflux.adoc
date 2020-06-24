@@ -95,6 +95,11 @@
 
 === 認証認可
 
+* spring-boot-starter-securityを依存関係に追加
+* CSRFトークンをthymeleafで使用する場合、thymeleaf-extras-springsecurity5を依存関係に追加
+
+
+
 === 性能評価
 
 
