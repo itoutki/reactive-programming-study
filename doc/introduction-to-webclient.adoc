@@ -22,7 +22,6 @@
 * SpringにおけるHTTP Clientといえば、RestTemplate
 * RestTemplateはSpring 5.0でメンテナンスモードになり、WebClientの利用が推奨されるようになっている
 
-
 * 並列処理を実装しやすい
 * Backend for Frontendのように、複数のAPIを呼び出して結果を集約したいといったユースケースを実装しやすい
 
