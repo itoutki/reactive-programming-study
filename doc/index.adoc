@@ -9,8 +9,24 @@
 
 == memo
 
-* link:memo.html[メモ]
+* link:memo[メモ]
+
+== introduction-to-webclient
+
+* link:introduction-to-webclient[introduction-to-webclient]
+
+== introduction-to-webflux
+
+* link:introduction-to-webflux[introduciton-to-webflux]
+
+== webclient
+
+* link:webclient[webclient]
+
+== webflux
+
+* link:webflux[webflux]
 
 == 参考資料
 
-* link:references.html[参考資料]
+* link:references[参考資料]
