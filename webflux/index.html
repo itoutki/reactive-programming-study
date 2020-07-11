@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Spring WebFlux入門</title>
+<title>Spring WebFlux</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,140 +436,329 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
-<h1>Spring WebFlux入門</h1>
+<h1>Spring WebFlux</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_thymeleaf連携">1. Thymeleaf連携</a></li>
+<li><a href="#_etc">2. etc</a>
+<ul class="sectlevel2">
+<li><a href="#_model上のデフォルト属性名">2.1. Model上のデフォルト属性名</a></li>
+<li><a href="#_sessionscope未サポート対応">2.2. @SessionScope未サポート対応</a></li>
+<li><a href="#_redirectattributes未サポート対応">2.3. RedirectAttributes未サポート対応</a></li>
+<li><a href="#_バリデーション">2.4. バリデーション</a></li>
+<li><a href="#_エラーハンドリング">2.5. エラーハンドリング</a></li>
+<li><a href="#_ロギング">2.6. ロギング</a></li>
+<li><a href="#_セッション">2.7. セッション</a></li>
+<li><a href="#_フィルタ">2.8. フィルタ</a></li>
+<li><a href="#_認証認可">2.9. 認証認可</a></li>
+<li><a href="#_性能評価">2.10. 性能評価</a></li>
+<li><a href="#_todo">2.11. TODO</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_vol1_概要">vol1. 概要</h2>
+<h2 id="_thymeleaf連携"><a class="anchor" href="#_thymeleaf連携"></a>1. Thymeleaf連携</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>従来のServletベースのWebアプリケーションにおける課題</p>
+<p>コントローラクラスのメソッドの返り値を <code>String</code> にすることで、Viewの解決が行われる。</p>
+</li>
+<li>
+<p><code>Model#addAttribute</code> で <code>Mono</code> または <code>Flux</code> を渡すことができる。</p>
+</li>
+<li>
+<p><code>Model</code> に <code>Mono</code> または <code>Flux</code> を渡した場合の処理方法には3種類ある。</p>
 <div class="ulist">
 <ul>
 <li>
-<p>1つのリクエストを1つのスレッドで処理</p>
+<p>full mode</p>
+<div class="ulist">
+<ul>
+<li>
+<p>テンプレートエンジンの中で全ての値を解決する。</p>
 </li>
 <li>
-<p>大量のリクエストを処理するためには大量のスレッドが必要</p>
-</li>
-<li>
-<p>大量のスレッドを使うためには大量のメモリが必要</p>
+<p>出力結果は単一のDataBufferに展開される。</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>少ないスレッドで大量のリクエストを処理できるようにしたい = ノンブロッキングI/O + イベントループ</p>
-</li>
-<li>
-<p>Spring WebFluxとは</p>
+<p>chunked mode</p>
 <div class="ulist">
 <ul>
 <li>
-<p>非同期 + ノンブロッキングI/O + イベントループ方式のWebアプリケーションフレームワーク</p>
+<p>テンプレートエンジンの中で全ての値を解決するが、指定したチャンクサイズごとに出力を行う。</p>
 </li>
 <li>
-<p>非同期 + ノンブロッキングI/O + イベントループ方式のアプリケーションサーバであるNettyや、サーブレットコンテナのノンブロッキングI/O(Servlet 3.1以降)を利用している</p>
-</li>
-<li>
-<p>ノンブロッキング + 非同期処理を扱うライブラリとしてReactorを採用している</p>
+<p><code>application.yml</code> の <code>spring.thymeleaf.reactive.max-chunk-size</code> で指定したサイズごとに出力される。</p>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>Reactorとは</p>
+<p>data-driven mode</p>
 <div class="ulist">
 <ul>
 <li>
-<p>ノンブロッキング + 非同期処理を扱うためのライブラリ</p>
+<p>値が解決されたものからクライアントに返す。</p>
 </li>
 <li>
-<p>リアクティブプログラミングを採用している</p>
+<p><code>Model#addAttribute</code> する際に、 <code>ReactiveDataDriverContextVariable</code> クラスでラップする必要がある。</p>
 </li>
 <li>
-<p>Reactive Streamsに対応している</p>
+<p><code>ReactiveDataDriverContextVariable</code> のコンストラクタの第2引数で値の解決を行うバッチサイズを指定する。</p>
+</li>
+<li>
+<p>モデルに追加できる <code>ReactiveDataDriverContextVariable</code> は1つのみ。2つ以上追加するとエラーになる。</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
 </li>
 <li>
-<p>リアクティブプログラミングとは</p>
-<div class="ulist">
-<ul>
-<li>
-<p>リアクティブプログラミング≒イベントドリブン</p>
+<p><a href="https://github.com/thymeleaf/thymeleafsandbox-biglist-reactive">thymeleaf/thymeleafsandbox-biglist-reactive: Sandbox application testing the render of large amounts of markup using Thymeleaf with Spring Web Reactive</a></p>
 </li>
 <li>
-<p>何らかのイベントを契機にプログラムが反応し、処理を行うように実装する</p>
-</li>
-<li>
-<p>例）「◯◯のイベントが発生したら呼び出され、xxの処理を実行する」</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>Reactive Streamsとは</p>
-<div class="ulist">
-<ul>
-<li>
-<p>ノンブロッキング + 非同期処理を扱うための標準</p>
-</li>
-<li>
-<p>バックプレッシャーという仕組みを定義している</p>
-</li>
-<li>
-<p>Reactorのほか、RxJava/Akka/Vert.xなどのライブラリもReactive Streamsに対応している</p>
-</li>
-<li>
-<p>JDK 9から導入された Flow APIもReactive Streamsに対応している</p>
-</li>
-</ul>
-</div>
+<p><a href="https://mkyong.com/spring-boot/spring-boot-webflux-thymeleaf-reactive-example/">Spring Boot WebFlux + Thymeleaf reactive example – Mkyong.com</a></p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_vol2_reactor">vol2. Reactor</h2>
+<h2 id="_etc"><a class="anchor" href="#_etc"></a>2. etc</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_model上のデフォルト属性名"><a class="anchor" href="#_model上のデフォルト属性名"></a>2.1. Model上のデフォルト属性名</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>ハンドラーメソッドのModel Attribute引数にリアクティブ側を指定した場合、属性名の末尾にMonoがつく。</p>
+</li>
+<li>
+<p>例えば、Model Attribute引数が <code>Mono&lt;SampleForm&gt; sampleForm</code> の場合、属性名は <code>sampleFormMono</code> となる。</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_sessionscope未サポート対応"><a class="anchor" href="#_sessionscope未サポート対応"></a>2.2. @SessionScope未サポート対応</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>WebFluxでは@SessionScopeをサポートしていないため、ControllerをまたいだSessionの共有を行うためには、自前で管理する必要がある。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>TODO : Spring Securityでは認証情報をどのように管理しているか調べる。</p>
+</li>
+<li>
+<p>TODO : Spring Sessionとの組み合わせについて調べる。</p>
+</li>
+<li>
+<p><a href="https://stackoverflow.com/questions/54690206/is-it-possible-to-achieve-session-scope-behavior-in-spring-webflux">java - Is it possible to achieve session scope behavior in Spring WebFlux? - Stack Overflow</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_redirectattributes未サポート対応"><a class="anchor" href="#_redirectattributes未サポート対応"></a>2.3. RedirectAttributes未サポート対応</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Spring MVCにおけるRedirectAttributesはThreadLocalを使用しているため、WebFluxではサポートしていない。</p>
+</li>
+<li>
+<p>WebFluxでPOST-Redirect-GETパターンを実装するためには、セッションを使用してflash attribute相当の仕組みを自前で実装する必要がある。</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/spring-projects/spring-framework/issues/20575">Webflux support for flash attributes [SPR-16026</a> · Issue #20575 · spring-projects/spring-framework]</p>
+</li>
+<li>
+<p><a href="https://stackoverflow.com/questions/46474452/redirectattributes-not-working-with-spring-5">java - RedirectAttributes not working with Spring 5 - Stack Overflow</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_バリデーション"><a class="anchor" href="#_バリデーション"></a>2.4. バリデーション</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>ハンドラーメソッドの引数にリアクティブ型を使用する場合、ハンドラーメソッドの引数にBindingResultを使用することはできない。</p>
+</li>
+<li>
+<p>ハンドラーメソッドの引数にリアクティブ型を使用する場合、onErrorResumeオペレータを使用してWebExchangeBindExceptionをハンドリングする。</p>
+</li>
+<li>
+<p>WebExchangeBindExceptionにはBindingResultが格納されており、#getBindingResultメソッドで取得できる。</p>
+</li>
+<li>
+<p>ハンドラーメソッドの引数にリアクティブ型を使用しない場合には、Spring MVCと同様にBindingResultを使用できる。</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"></code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-ann-modelattrib-method-args">Web on Reactive Stack</a></p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/bind/support/WebExchangeBindException.html">WebExchangeBindException (Spring Framework 5.2.6.RELEASE API)</a></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_エラーハンドリング"><a class="anchor" href="#_エラーハンドリング"></a>2.5. エラーハンドリング</h3>
 
 </div>
+<div class="sect2">
+<h3 id="_ロギング"><a class="anchor" href="#_ロギング"></a>2.6. ロギング</h3>
+
 </div>
-<div class="sect1">
-<h2 id="_vol3_webclient">vol3. WebClient</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_セッション"><a class="anchor" href="#_セッション"></a>2.7. セッション</h3>
 <div class="ulist">
 <ul>
 <li>
-<p>Spring WebFluxの機能の一つ</p>
+<p><code>@SessionAttributes</code> アノテーションを使用して、Controllerの範囲でセッション情報を管理する。</p>
 </li>
 <li>
-<p>ノンブロッキング + 非同期なHTTPクライアント</p>
+<p>ハンドラメソッドの引数に <code>WebSession</code> を指定し、セッションへのデータの追加・削除を行う。</p>
 </li>
 <li>
-<p>Spring MVCアプリケーション上で使用することもできる</p>
+<p>ハンドラメソッドの引数で <code>@SessionAttribute</code> を指定し、セッションのデータを参照する。</p>
+</li>
+<li>
+<p>セッションタイムアウトの時間を変更する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>InMemoryWebSessionStoreを拡張する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDを保持するCookieをカスタマイズする</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CookieWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDをHeaderで保持する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>HeaderWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Spring Sessionを使用する場合</p>
+<div class="ulist">
+<ul>
+<li>
+<p>セッションタイムアウトの時間を変更する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>application.ymlのspring.session.timeoutで指定する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDを保持するCookieをカスタマイズする</p>
+<div class="ulist">
+<ul>
+<li>
+<p>CookieWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>セッションIDをHeaderで保持する</p>
+<div class="ulist">
+<ul>
+<li>
+<p>HeaderWebSessionIdResolverを利用する</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="_vol4_spring_webflux">vol4. Spring WebFlux</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_フィルタ"><a class="anchor" href="#_フィルタ"></a>2.8. フィルタ</h3>
 
+</div>
+<div class="sect2">
+<h3 id="_認証認可"><a class="anchor" href="#_認証認可"></a>2.9. 認証認可</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>spring-boot-starter-securityを依存関係に追加</p>
+</li>
+<li>
+<p>CSRFトークンをthymeleafで使用する場合、thymeleaf-extras-springsecurity5を依存関係に追加</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_性能評価"><a class="anchor" href="#_性能評価"></a>2.10. 性能評価</h3>
+
+</div>
+<div class="sect2">
+<h3 id="_todo"><a class="anchor" href="#_todo"></a>2.11. TODO</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>ハンドラーメソッドの引数をリアクティブ型にした場合・しない場合でどのような違いがあるか（ブロッキング処理になるか、など）調べる。</p>
+</li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-07-08 14:19:12 UTC
+Last updated 2020-07-11 07:14:10 UTC
 </div>
 </div>
 </body>
