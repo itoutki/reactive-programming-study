@@ -81,3 +81,8 @@
 * link:http://nosix.hatenablog.com/entry/2018/07/30/143921[Spring WebFlux で Spring Security の認証と認可を使う - NOSIX]
 * link:http://nosix.hatenablog.com/entry/2018/07/31/140104[Spring WebFlux で Spring Security と CORS WebFilter を併せて使う - NOSIX]
 * link:http://nosix.hatenablog.com/entry/2018/07/31/161615[Spring WebFlux で InMemoryWebSessionStore にセッションタイムアウトを設定する - NOSIX]
+* link:https://backpaper0.github.io/ghosts/r2dbc/#1[R2DBCの話]
+* link:https://bufferings.hatenablog.com/entry/2018/11/18/102433[怖くないR2DBC - Mitsuyuki.Shiiba]
+* link:https://bufferings.hatenablog.com/entry/2018/11/23/095809[怖くないR2DBC その2 r2dbc-client - Mitsuyuki.Shiiba]
+* link:https://bufferings.hatenablog.com/entry/2018/12/04/000332[怖くないR2DBC その3 spring-data-r2dbc - Mitsuyuki.Shiiba]
+* link:https://bufferings.hatenablog.com/entry/2018/11/17/211252[Hello R2DBC - Mitsuyuki.Shiiba]
