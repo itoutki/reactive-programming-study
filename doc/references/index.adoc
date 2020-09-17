@@ -86,3 +86,7 @@
 * link:https://bufferings.hatenablog.com/entry/2018/11/23/095809[怖くないR2DBC その2 r2dbc-client - Mitsuyuki.Shiiba]
 * link:https://bufferings.hatenablog.com/entry/2018/12/04/000332[怖くないR2DBC その3 spring-data-r2dbc - Mitsuyuki.Shiiba]
 * link:https://bufferings.hatenablog.com/entry/2018/11/17/211252[Hello R2DBC - Mitsuyuki.Shiiba]
+* link:https://naoya-2.hatenadiary.org/entry/20060912/1158058322[コネクションプーリングの話 - naoyaのはてなダイアリー]
+* link:https://www.techscore.com/blog/2019/09/19/%E3%82%B3%E3%83%8D%E3%82%AF%E3%82%B7%E3%83%A7%E3%83%B3%E3%83%97%E3%83%BC%E3%83%AA%E3%83%B3%E3%82%B0%E3%81%AF%E5%AE%9F%E9%9A%9B%E5%BF%85%E8%A6%81%E3%81%AA%E3%81%AE%E3%81%8B%EF%BC%88postgresql%EF%BC%89/[コネクションプーリングは実際必要なのか（PostgreSQL） | TECHSCORE BLOG]
+* link:https://togetter.com/li/558788[RDBMSでコネクションプールが必要な理由、わからない。 - Togetter]
+* link:https://morizyun.github.io/blog/connection-pooling-database-db-postgresql/[コネクションプーリングの話 - naoyaのはてなダイアリー]
