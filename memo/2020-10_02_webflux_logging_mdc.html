@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Reactive Programming Study</title>
+<title>Spring WebFluxのロギングでMDCを使う</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,87 +438,37 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Reactive Programming Study</h1>
+<h1>Spring WebFluxのロギングでMDCを使う</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_memo">1. memo</a></li>
-<li><a href="#_introduction_to_webclient">2. introduction-to-webclient</a></li>
-<li><a href="#_introduction_to_webflux">3. introduction-to-webflux</a></li>
-<li><a href="#_webclient">4. webclient</a></li>
-<li><a href="#_webflux">5. webflux</a></li>
-<li><a href="#_参考資料">6. 参考資料</a></li>
+<li><a href="#_参考資料">1. 参考資料</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_memo"><a class="anchor" href="#_memo"></a>1. memo</h2>
+<h2 id="_参考資料"><a class="anchor" href="#_参考資料"></a>1. 参考資料</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="memo">メモ</a></p>
+<p><a href="https://projectreactor.io/docs/core/release/reference/#faq.mdc">Reactor 3 Reference Guide</a></p>
 </li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_introduction_to_webclient"><a class="anchor" href="#_introduction_to_webclient"></a>2. introduction-to-webclient</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
 <li>
-<p><a href="introduction-to-webclient">introduction-to-webclient</a></p>
+<p><a href="https://github.com/archie-swif/webflux-mdc">archie-swif/webflux-mdc</a></p>
 </li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_introduction_to_webflux"><a class="anchor" href="#_introduction_to_webflux"></a>3. introduction-to-webflux</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
 <li>
-<p><a href="introduction-to-webflux">introduciton-to-webflux</a></p>
+<p><a href="https://github.com/spring-projects/spring-framework/issues/20239">RequestContextHolder for Reactive Web \[SPR-15680] · Issue #20239 · spring-projects/spring-framework</a></p>
 </li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_webclient"><a class="anchor" href="#_webclient"></a>4. webclient</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
 <li>
-<p><a href="webclient">webclient</a></p>
+<p><a href="https://github.com/spring-cloud/spring-cloud-sleuth/blob/master/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/web/TraceWebFluxAutoConfiguration.java">spring-cloud-sleuth/TraceWebFluxAutoConfiguration.java at master · spring-cloud/spring-cloud-sleuth</a></p>
 </li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_webflux"><a class="anchor" href="#_webflux"></a>5. webflux</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
 <li>
-<p><a href="webflux">webflux</a></p>
+<p><a href="https://github.com/spring-cloud/spring-cloud-sleuth/blob/master/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/reactor/TraceReactorAutoConfiguration.java">spring-cloud-sleuth/TraceReactorAutoConfiguration.java at master · spring-cloud/spring-cloud-sleuth</a></p>
 </li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_参考資料"><a class="anchor" href="#_参考資料"></a>6. 参考資料</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
 <li>
-<p><a href="references">参考資料</a></p>
+<p><a href="https://speakerdeck.com/line_developers/examples-of-using-spring-and-webflux-in-the-chat-system-for-line-official-accounts?slide=49">LINE公式アカウントのチャットシステムにおけるSpringおよびWebFluxの活用事例 / Examples of using Spring and WebFlux in the chat system for LINE official accounts - Speaker Deck</a></p>
 </li>
 </ul>
 </div>
