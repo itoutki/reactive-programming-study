@@ -42,4 +42,4 @@
 
 |===
 
-image::memo/r2dbc-performance-cpu.png[]
+image:/images/memo/r2dbc-performance-cpu.png[]
