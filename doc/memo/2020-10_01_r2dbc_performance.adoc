@@ -26,7 +26,7 @@
 == テスト結果
 
 |===
-| Concurrency | 0.5CPU 1GiB RAM | 1CPU 4GiB RAM | 2CPU 8GiB RAM
+| Concurrency | 0.5CPU 1GiB RAM | 2CPU 4GiB RAM | 4CPU 8GiB RAM
 
 | 10 | 99 ms | 47 ms | 22 ms
 | 100 | 204 ms | 170 ms | 106 ms

@@ -1,0 +1,19 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+:source-highlighter: coderay
+
+= Spring WebFluxのロギングでMDCを使う
+
+
+== 参考資料
+
+* link:https://projectreactor.io/docs/core/release/reference/#faq.mdc[Reactor 3 Reference Guide]
+* link:https://github.com/archie-swif/webflux-mdc[archie-swif/webflux-mdc]
+* link:https://github.com/spring-projects/spring-framework/issues/20239[RequestContextHolder for Reactive Web \[SPR-15680\] · Issue #20239 · spring-projects/spring-framework]
+* link:https://github.com/spring-cloud/spring-cloud-sleuth/blob/master/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/web/TraceWebFluxAutoConfiguration.java[spring-cloud-sleuth/TraceWebFluxAutoConfiguration.java at master · spring-cloud/spring-cloud-sleuth]
+* link:https://github.com/spring-cloud/spring-cloud-sleuth/blob/master/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/reactor/TraceReactorAutoConfiguration.java[spring-cloud-sleuth/TraceReactorAutoConfiguration.java at master · spring-cloud/spring-cloud-sleuth]
+* link:https://speakerdeck.com/line_developers/examples-of-using-spring-and-webflux-in-the-chat-system-for-line-official-accounts?slide=49[LINE公式アカウントのチャットシステムにおけるSpringおよびWebFluxの活用事例 / Examples of using Spring and WebFlux in the chat system for LINE official accounts - Speaker Deck]
