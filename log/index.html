@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>R2DBCの負荷性能テスト</title>
+<title>作業ログ</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,162 +438,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>R2DBCの負荷性能テスト</h1>
+<h1>作業ログ</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_テスト方法">1. テスト方法</a></li>
-<li><a href="#_テスト結果">2. テスト結果</a></li>
+<li><a href="#_202010">1. 2020/10</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_テスト方法"><a class="anchor" href="#_テスト方法"></a>1. テスト方法</h2>
+<h2 id="_202010"><a class="anchor" href="#_202010"></a>1. 2020/10</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p>Spring WebFlux + Spring Data R2DBCでFargateのスペック（CPU）を変えた時の負荷性能を調べる。</p>
-</li>
-<li>
-<p>Fargateのスペックは以下の3パターンとする。</p>
-<div class="ulist">
-<ul>
-<li>
-<p>0.5CPU 1GiB RAM</p>
-</li>
-<li>
-<p>2CPU 4GiB RAM</p>
-</li>
-<li>
-<p>4CPU 8GiB RAM</p>
+<p><a href="./2020-10_01_r2dbc_performance">2020-10_01_r2bc-performance</a></p>
 </li>
 </ul>
-</div>
-</li>
-<li>
-<p>コンテナのメモリのハードリミットを1024MiBに設定する。</p>
-</li>
-<li>
-<p>RDBとしてRDSを使用する。スペックは以下の通り。</p>
-<div class="ulist">
-<ul>
-<li>
-<p>Engine MySQL 8.0.20</p>
-</li>
-<li>
-<p>db.m5.xlarge 4vCPUs 16 GiB RAM EBS:4750 Mbps</p>
-</li>
-</ul>
-</div>
-</li>
-<li>
-<p>負荷ツールにはApache Benchを使う。</p>
-</li>
-<li>
-<p>Concurrencyを100〜1000まで変化させながら1000リクエストの負荷をかけた時のレスポンスの90パーセンタイル値を測定する。</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_テスト結果"><a class="anchor" href="#_テスト結果"></a>2. テスト結果</h2>
-<div class="sectionbody">
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-<col style="width: 25%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Concurrency</th>
-<th class="tableblock halign-left valign-top">0.5CPU 1GiB RAM</th>
-<th class="tableblock halign-left valign-top">2CPU 4GiB RAM</th>
-<th class="tableblock halign-left valign-top">4CPU 8GiB RAM</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">99 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">47 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">22 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">100</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">204 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">170 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">106 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">200</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">304 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">161 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">79 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">300</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">687 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">166 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">92 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">400</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1203 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">136 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">94 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">500</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1596 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">182 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">129 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">600</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1544 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">267 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">118 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">700</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1329 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">290 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">269 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">800</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1371 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">251 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">232 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">900</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1259 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">262 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">251 ms</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">1309 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">267 ms</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">252 ms</p></td>
-</tr>
-</tbody>
-</table>
-<div class="paragraph">
-<p><span class="image"><img src="./../images/memo/r2dbc-performance-cpu.png" alt="r2dbc performance cpu"></span></p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-10-20 15:12:09 UTC
+Last updated 2020-10-22 06:26:17 UTC
 </div>
 </div>
 </body>
