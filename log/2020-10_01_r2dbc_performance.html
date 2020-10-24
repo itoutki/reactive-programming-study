@@ -529,6 +529,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </div>
 <table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. Time per request</caption>
 <colgroup>
 <col style="width: 25%;">
 <col style="width: 25%;">
@@ -614,6 +615,94 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </table>
 <div class="paragraph">
 <p><span class="image"><img src="./../images/log/r2dbc-performance-cpu.png" alt="r2dbc performance cpu"></span></p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 2. Request per second</caption>
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+<col style="width: 25%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Concurrency</th>
+<th class="tableblock halign-left valign-top">0.5CPU 1GiB RAM</th>
+<th class="tableblock halign-left valign-top">2CPU 4GiB RAM</th>
+<th class="tableblock halign-left valign-top">4 CPU 8GiB RAM</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">10</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">242.31</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">743.97</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">745.57</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">100</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">746.09</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1042.54</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1829.89</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">200</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">740.91</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1419.59</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2998.51</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">300</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">754.48</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1673.68</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2807.16</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">400</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">426.94</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2647.36</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3266.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">500</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">438.81</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2079.97</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3452.81</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">600</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">489.44</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2727.67</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2522.19</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">700</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">518.3</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2516.38</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2843.93</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">800</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">638.61</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2943.54</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2991.84</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">900</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">619.51</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3154.03</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">2629.99</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">1000</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">736.75</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3339.99</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">3516.17</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><span class="image"><img src="./../images/log/r2dbc-performance-rps.png" alt="r2dbc performance rps"></span></p>
 </div>
 </div>
 </div>
@@ -2097,7 +2186,7 @@ Percentage of the requests served within a certain time (ms)
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2020-10-24 14:10:45 UTC
+Last updated 2020-10-24 14:27:42 UTC
 </div>
 </div>
 <style>
