@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>作業ログ</title>
+<title>Spring WebFluxにおけるロギングとMDC</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -438,22 +438,215 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>作業ログ</h1>
+<h1>Spring WebFluxにおけるロギングとMDC</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_202010">1. 2020/10</a></li>
+<li><a href="#_context_ヘルパーメソッドによるmdc">1. Context + ヘルパーメソッドによるMDC</a></li>
+<li><a href="#_context_hooksによるmdc">2. Context + HooksによるMDC</a></li>
+<li><a href="#_参考情報">3. 参考情報</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_202010"><a class="anchor" href="#_202010"></a>1. 2020/10</h2>
+<h2 id="_context_ヘルパーメソッドによるmdc"><a class="anchor" href="#_context_ヘルパーメソッドによるmdc"></a>1. Context + ヘルパーメソッドによるMDC</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>公式のFAQに記載されている方法。
+ReactorのContextを利用してMDCを設定するヘルパーメソッドを実装し、ヘルパーメソッド経由でログ出力する。
+ヘルパーメソッドを <code>doOnEach</code> オペレータとして実装し、
+その中でSignalからContextを取り出し、MDCに値をセットしてログ出力処理を呼び出し、
+最後にMDCから値をクリアする、という流れで処理を行う。</p>
+</div>
+<div class="paragraph">
+<p>下記のコードでは、OnNextシグナルの時にログ出力を行うためのヘルパーメソッドである。
+この例では、1つの値のみをMDCにセットすることを前提としている。
+複数の値をMDCにセットしたい場合、ContextにMapを保持しておき、
+ヘルパーメソッドの中で、MDCにセットする。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="directive">public</span> <span class="directive">static</span> &lt;T&gt; Consumer&lt;Signal&lt;T&gt;&gt; logOnNext(Consumer&lt;T&gt; logStatement) {
+        <span class="keyword">return</span> signal -&gt; {
+        <span class="comment">// OnNextシグナルでない場合は処理しない</span>
+                <span class="keyword">if</span> (!signal.isOnNext()) <span class="keyword">return</span>;
+
+        <span class="comment">// SignalからContextを取得し、Context内に特定のキー（CONTEXT_KEY）で格納してしてある値を取得</span>
+                Optional&lt;<span class="predefined-type">String</span>&gt; toPutInMdc = signal.getContext().getOrEmpty(<span class="string"><span class="delimiter">&quot;</span><span class="content">CONTEXT_KEY</span><span class="delimiter">&quot;</span></span>);
+
+        <span class="comment">// Contextから取得した値をMDCにセットしてログ出力処理を呼び出す</span>
+        <span class="comment">// MDCCloseableを使用しており、ログ出力処理後にMDCからクリアされる</span>
+                toPutInMdc.ifPresentOrElse(tpim -&gt; {
+                        <span class="keyword">try</span> (MDC.MDCCloseable cMdc = MDC.putCloseable(<span class="string"><span class="delimiter">&quot;</span><span class="content">MDC_KEY</span><span class="delimiter">&quot;</span></span>, tpim)) {
+                                logStatement.accept(signal.get());
+                        }
+                },
+                () -&gt; logStatement.accept(signal.get()));
+        };
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>ただし、この方法の場合、 <code>doOnEach</code> オペレータとして実装する都合上、
+<code>onSubscribe</code> シグナルを検知することができない。
+また、 <code>doOnSubscribe</code> オペレータの場合、引数がSubscriptionとなり、Contextを取得することができないため、
+MDCを利用できないケースが存在する。
+<code>onSubscribe</code> も含めMDCを使用したい場合、後述の方法を取る必要がある。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_context_hooksによるmdc"><a class="anchor" href="#_context_hooksによるmdc"></a>2. Context + HooksによるMDC</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Reactorにはオペレータから呼ばれるコールバックをカスタマイズするための仕組みとして、Hooksという機能がある。
+これを活用し、各オペレータのシグナル発生時にMDCへの値のセット、およびMDCのクリアを実行することによってMDCを含むログ出力を実現する。</p>
+</div>
+<div class="paragraph">
+<p>まず、下記のようにCoreSubscriberの各処理をラップしてMDCの値のセット、MDCをクリアを実行するSubscriberを作成する。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">com.example.perf.webflux.r2dbc</span>;
+
+<span class="keyword">import</span> <span class="include">org.reactivestreams.Subscription</span>;
+<span class="keyword">import</span> <span class="include">org.slf4j.Logger</span>;
+<span class="keyword">import</span> <span class="include">org.slf4j.LoggerFactory</span>;
+<span class="keyword">import</span> <span class="include">org.slf4j.MDC</span>;
+<span class="keyword">import</span> <span class="include">reactor.core.CoreSubscriber</span>;
+<span class="keyword">import</span> <span class="include">reactor.util.context.Context</span>;
+
+<span class="keyword">import</span> <span class="include">java.util.HashMap</span>;
+<span class="keyword">import</span> <span class="include">java.util.Map</span>;
+
+<span class="directive">public</span> <span class="type">class</span> <span class="class">MdcContextLifter</span>&lt;T&gt; <span class="directive">implements</span> CoreSubscriber&lt;T&gt; {
+    <span class="directive">private</span> <span class="directive">static</span> <span class="directive">final</span> <span class="predefined-type">Logger</span> logger = LoggerFactory.getLogger(MdcContextLifter.class);
+
+    <span class="directive">public</span> <span class="directive">static</span> <span class="directive">final</span> <span class="predefined-type">String</span> CONTEXT_MDC_KEY = <span class="string"><span class="delimiter">&quot;</span><span class="content">MDC</span><span class="delimiter">&quot;</span></span>;
+
+    CoreSubscriber&lt;T&gt; coreSubscriber;
+
+    <span class="directive">public</span> MdcContextLifter(CoreSubscriber&lt;T&gt; coreSubscriber) {
+        <span class="local-variable">this</span>.coreSubscriber = coreSubscriber;
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">void</span> onSubscribe(Subscription subscription) {
+        copyToMdc(coreSubscriber.currentContext());
+        <span class="keyword">try</span> {
+            coreSubscriber.onSubscribe(subscription);
+        } <span class="keyword">finally</span> {
+            clearMdc();
+        }
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">void</span> onNext(T obj) {
+        copyToMdc(coreSubscriber.currentContext());
+        <span class="keyword">try</span> {
+            coreSubscriber.onNext(obj);
+        } <span class="keyword">finally</span> {
+            clearMdc();
+        }
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">void</span> onError(<span class="predefined-type">Throwable</span> t) {
+        copyToMdc(coreSubscriber.currentContext());
+        <span class="keyword">try</span> {
+            coreSubscriber.onError(t);
+        } <span class="keyword">finally</span> {
+            clearMdc();
+        }
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="type">void</span> onComplete() {
+        copyToMdc(coreSubscriber.currentContext());
+        <span class="keyword">try</span> {
+            coreSubscriber.onComplete();
+        } <span class="keyword">finally</span> {
+            clearMdc();
+        }
+    }
+
+    <span class="annotation">@Override</span>
+    <span class="directive">public</span> <span class="predefined-type">Context</span> currentContext() {
+        <span class="keyword">return</span> coreSubscriber.currentContext();
+    }
+
+    <span class="directive">private</span> <span class="type">void</span> copyToMdc(<span class="predefined-type">Context</span> context) {
+        <span class="keyword">if</span> (!context.isEmpty()) {
+            <span class="predefined-type">Map</span>&lt;<span class="predefined-type">String</span>, <span class="predefined-type">String</span>&gt; mdc = context.getOrDefault(CONTEXT_MDC_KEY, <span class="keyword">new</span> <span class="predefined-type">HashMap</span>&lt;&gt;());
+            MDC.setContextMap(mdc);
+        }
+    }
+
+    <span class="directive">private</span> <span class="type">void</span> clearMdc() {
+        MDC.clear();
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>次に、前述のSubscriberをHooksに登録する。
+下記のコードでは、SpringのConfigurationクラスを作り、 <code>@PostConstruct</code> を付与したメソッドの中でHooksへの登録を行っている。
+Hooksの登録には <code>onEachOperator</code> を使用する。
+これは今回のような全てのシグナルに対応するコールバックをカスタマイズする場合に使用する。
+なお、 <code>@PreDestroy</code> を付与したメソッドの中で登録したSubscriberを削除している。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="java"><span class="keyword">package</span> <span class="namespace">com.example.perf.webflux.r2dbc</span>;
+
+<span class="keyword">import</span> <span class="include">org.springframework.context.annotation.Configuration</span>;
+<span class="keyword">import</span> <span class="include">reactor.core.publisher.Hooks</span>;
+<span class="keyword">import</span> <span class="include">reactor.core.publisher.Operators</span>;
+
+<span class="keyword">import</span> <span class="include">javax.annotation.PostConstruct</span>;
+<span class="keyword">import</span> <span class="include">javax.annotation.PreDestroy</span>;
+
+<span class="annotation">@Configuration</span>
+<span class="directive">public</span> <span class="type">class</span> <span class="class">MdcConfig</span> {
+
+    <span class="annotation">@PostConstruct</span>
+    <span class="directive">public</span> <span class="type">void</span> setupHooks() {
+        Hooks.onEachOperator(<span class="string"><span class="delimiter">&quot;</span><span class="content">mdc</span><span class="delimiter">&quot;</span></span>,
+                Operators.lift((scannable, coreSubscriber) -&gt; <span class="keyword">new</span> MdcContextLifter&lt;&gt;(coreSubscriber)));
+    }
+
+    <span class="annotation">@PreDestroy</span>
+    <span class="directive">public</span> <span class="type">void</span> cleanupHooks() {
+        Hooks.resetOnEachOperator(<span class="string"><span class="delimiter">&quot;</span><span class="content">mdc</span><span class="delimiter">&quot;</span></span>);
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考情報"><a class="anchor" href="#_参考情報"></a>3. 参考情報</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="./2020-10_01_r2dbc_performance">2020-10_01_r2bc-performance</a></p>
+<p><a href="https://projectreactor.io/docs/core/release/reference/#faq.mdc">Reactor 3 Reference Guide</a></p>
+</li>
+<li>
+<p><a href="https://ndportmann.com/passing-context-with-spring-webflux/">Passing Context with Spring WebFlux (Part I) - Nicolas Portmann - .NET / Java / Security</a></p>
+</li>
+<li>
+<p><a href="https://ndportmann.com/logging-with-context-in-spring-webflux/">Logging with Context in Spring WebFlux (Part II) - Nicolas Portmann - .NET / Java / Security</a></p>
+</li>
+<li>
+<p><a href="https://speakerdeck.com/line_developers/examples-of-using-spring-and-webflux-in-the-chat-system-for-line-official-accounts?slide=44">LINE公式アカウントのチャットシステムにおけるSpringおよびWebFluxの活用事例 / Examples of using Spring and WebFlux in the chat system for LINE official accounts - Speaker Deck</a></p>
+</li>
+<li>
+<p><a href="https://github.com/spring-projects/spring-framework/issues/20239">RequestContextHolder for Reactive Web [SPR-15680</a> · Issue #20239 · spring-projects/spring-framework]</p>
+</li>
+<li>
+<p><a href="https://qiita.com/angelica-keiskei/items/527eaaf6432a957f42fe">SpringWebFluxでMDCを使用するにはコンテキストを使うんだってさ - Qiita</a></p>
 </li>
 </ul>
 </div>
@@ -465,5 +658,94 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 Last updated 2020-10-24 09:39:47 UTC
 </div>
 </div>
+<style>
+/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+pre.CodeRay{background:#f7f7f8}
+.CodeRay .line-numbers{border-right:1px solid currentColor;opacity:.35;padding:0 .5em 0 0}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.75em}
+.CodeRay .line-numbers strong{color:#000}
+table.CodeRay{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.CodeRay td{vertical-align:top;line-height:inherit}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.code{padding:0 0 0 .75em}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#000}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}
+</style>
 </body>
 </html>
