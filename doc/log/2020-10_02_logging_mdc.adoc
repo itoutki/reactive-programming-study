@@ -1,0 +1,186 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+:source-highlighter: coderay
+
+= Spring WebFluxにおけるロギングとMDC
+
+== Context + ヘルパーメソッドによるMDC
+
+公式のFAQに記載されている方法。
+ReactorのContextを利用してMDCを設定するヘルパーメソッドを実装し、ヘルパーメソッド経由でログ出力する。
+ヘルパーメソッドを `doOnEach` オペレータとして実装し、
+その中でSignalからContextを取り出し、MDCに値をセットしてログ出力処理を呼び出し、
+最後にMDCから値をクリアする、という流れで処理を行う。
+
+下記のコードでは、OnNextシグナルの時にログ出力を行うためのヘルパーメソッドである。
+この例では、1つの値のみをMDCにセットすることを前提としている。
+複数の値をMDCにセットしたい場合、ContextにMapを保持しておき、
+ヘルパーメソッドの中で、MDCにセットする。
+
+[source, java]
+----
+public static <T> Consumer<Signal<T>> logOnNext(Consumer<T> logStatement) {
+	return signal -> {
+        // OnNextシグナルでない場合は処理しない
+		if (!signal.isOnNext()) return; 
+
+        // SignalからContextを取得し、Context内に特定のキー（CONTEXT_KEY）で格納してしてある値を取得
+		Optional<String> toPutInMdc = signal.getContext().getOrEmpty("CONTEXT_KEY"); 
+
+        // Contextから取得した値をMDCにセットしてログ出力処理を呼び出す
+        // MDCCloseableを使用しており、ログ出力処理後にMDCからクリアされる
+		toPutInMdc.ifPresentOrElse(tpim -> {
+			try (MDC.MDCCloseable cMdc = MDC.putCloseable("MDC_KEY", tpim)) { 
+				logStatement.accept(signal.get()); 
+			}
+		},
+		() -> logStatement.accept(signal.get())); 
+	};
+}
+----
+
+
+
+ただし、この方法の場合、 `doOnEach` オペレータとして実装する都合上、
+`onSubscribe` シグナルを検知することができない。
+また、 `doOnSubscribe` オペレータの場合、引数がSubscriptionとなり、Contextを取得することができないため、
+MDCを利用できないケースが存在する。
+`onSubscribe` も含めMDCを使用したい場合、後述の方法を取る必要がある。
+
+
+== Context + HooksによるMDC
+
+Reactorにはオペレータから呼ばれるコールバックをカスタマイズするための仕組みとして、Hooksという機能がある。
+これを活用し、各オペレータのシグナル発生時にMDCへの値のセット、およびMDCのクリアを実行することによってMDCを含むログ出力を実現する。
+
+まず、下記のようにCoreSubscriberの各処理をラップしてMDCの値のセット、MDCをクリアを実行するSubscriberを作成する。
+
+
+[source, java]
+----
+package com.example.perf.webflux.r2dbc;
+
+import org.reactivestreams.Subscription;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import reactor.core.CoreSubscriber;
+import reactor.util.context.Context;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class MdcContextLifter<T> implements CoreSubscriber<T> {
+    private static final Logger logger = LoggerFactory.getLogger(MdcContextLifter.class);
+
+    public static final String CONTEXT_MDC_KEY = "MDC";
+
+    CoreSubscriber<T> coreSubscriber;
+
+    public MdcContextLifter(CoreSubscriber<T> coreSubscriber) {
+        this.coreSubscriber = coreSubscriber;
+    }
+
+    @Override
+    public void onSubscribe(Subscription subscription) {
+        copyToMdc(coreSubscriber.currentContext());
+        try {
+            coreSubscriber.onSubscribe(subscription);
+        } finally {
+            clearMdc();
+        }
+    }
+
+    @Override
+    public void onNext(T obj) {
+        copyToMdc(coreSubscriber.currentContext());
+        try {
+            coreSubscriber.onNext(obj);
+        } finally {
+            clearMdc();
+        }
+    }
+
+    @Override
+    public void onError(Throwable t) {
+        copyToMdc(coreSubscriber.currentContext());
+        try {
+            coreSubscriber.onError(t);
+        } finally {
+            clearMdc();
+        }
+    }
+
+    @Override
+    public void onComplete() {
+        copyToMdc(coreSubscriber.currentContext());
+        try {
+            coreSubscriber.onComplete();
+        } finally {
+            clearMdc();
+        }
+    }
+
+    @Override
+    public Context currentContext() {
+        return coreSubscriber.currentContext();
+    }
+
+    private void copyToMdc(Context context) {
+        if (!context.isEmpty()) {
+            Map<String, String> mdc = context.getOrDefault(CONTEXT_MDC_KEY, new HashMap<>());
+            MDC.setContextMap(mdc);
+        }
+    }
+
+    private void clearMdc() {
+        MDC.clear();
+    }
+}
+----
+
+次に、前述のSubscriberをHooksに登録する。
+下記のコードでは、SpringのConfigurationクラスを作り、 `@PostConstruct` を付与したメソッドの中でHooksへの登録を行っている。
+Hooksの登録には `onEachOperator` を使用する。
+これは今回のような全てのシグナルに対応するコールバックをカスタマイズする場合に使用する。
+なお、 `@PreDestroy` を付与したメソッドの中で登録したSubscriberを削除している。
+
+[source, java]
+----
+package com.example.perf.webflux.r2dbc;
+
+import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Hooks;
+import reactor.core.publisher.Operators;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+@Configuration
+public class MdcConfig {
+
+    @PostConstruct
+    public void setupHooks() {
+        Hooks.onEachOperator("mdc",
+                Operators.lift((scannable, coreSubscriber) -> new MdcContextLifter<>(coreSubscriber)));
+    }
+
+    @PreDestroy
+    public void cleanupHooks() {
+        Hooks.resetOnEachOperator("mdc");
+    }
+}
+----
+
+== 参考情報
+
+* link:https://projectreactor.io/docs/core/release/reference/#faq.mdc[Reactor 3 Reference Guide]
+* link:https://ndportmann.com/passing-context-with-spring-webflux/[Passing Context with Spring WebFlux (Part I) - Nicolas Portmann - .NET / Java / Security]
+* link:https://ndportmann.com/logging-with-context-in-spring-webflux/[Logging with Context in Spring WebFlux (Part II) - Nicolas Portmann - .NET / Java / Security]
+* link:https://speakerdeck.com/line_developers/examples-of-using-spring-and-webflux-in-the-chat-system-for-line-official-accounts?slide=44[LINE公式アカウントのチャットシステムにおけるSpringおよびWebFluxの活用事例 / Examples of using Spring and WebFlux in the chat system for LINE official accounts - Speaker Deck]
+* link:https://github.com/spring-projects/spring-framework/issues/20239[RequestContextHolder for Reactive Web [SPR-15680] · Issue #20239 · spring-projects/spring-framework]
+* link:https://qiita.com/angelica-keiskei/items/527eaaf6432a957f42fe[SpringWebFluxでMDCを使用するにはコンテキストを使うんだってさ - Qiita]
