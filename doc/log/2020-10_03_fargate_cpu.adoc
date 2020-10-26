@@ -1,0 +1,428 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+:source-highlighter: coderay
+
+= FargateにおけるCPUカウントに関する調査
+
+== 調査1 /proc/cpuinfo
+
+EC2インスタンスおよびFargate上でUbuntu:20.04のコンテナを起動し、/proc/cpuinfoの情報を出力してみる。 +
+ローカルで実行する場合、下記のコマンドを実行する。
+
+
+[source]
+----
+docker run -it --rm --name ubuntu ubuntu:20.04 cat /proc/cpuinfo
+----
+
+|===
+| 実行環境 | vCPU | 論理プロセッサ数
+
+| EC2 | 1 vCPU | 1
+| EC2 | 2 vCPU | 2
+| Fargate | 0.5 vCPU | 2
+| Fargate | 1 vCPU | 2
+| Fargate | 2 vCPU | 2
+| Fargate | 4 vCPU | 4
+
+|===
+
+=== EC2 1vCPUの場合
+
+[source]
+----
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 63
+model name      : Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz
+stepping        : 2
+microcode       : 0x43
+cpu MHz         : 2400.142
+cache size      : 30720 KB
+physical id     : 0
+siblings        : 1
+core id         : 0
+cpu cores       : 1
+apicid          : 0
+initial apicid  : 0
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 13
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt
+bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+bogomips        : 4800.16
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 46 bits physical, 48 bits virtual
+power management:
+----
+
+=== EC2 2vCPUの場合
+
+[source]
+----
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 85
+model name      : Intel(R) Xeon(R) Platinum 8259CL CPU @ 2.50GHz
+stepping        : 7
+microcode       : 0x5002f01
+cpu MHz         : 2499.998
+cache size      : 36608 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+apicid          : 0
+initial apicid  : 0
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 13
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves ida arat pku ospke
+bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+bogomips        : 4999.99
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 46 bits physical, 48 bits virtual
+power management:
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 85
+model name      : Intel(R) Xeon(R) Platinum 8259CL CPU @ 2.50GHz
+stepping        : 7
+microcode       : 0x5002f01
+cpu MHz         : 2499.998
+cache size      : 36608 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+apicid          : 1
+initial apicid  : 1
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 13
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid tsc_known_freq pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single pti fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid mpx avx512f avx512dq rdseed adx smap clflushopt clwb avx512cd avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves ida arat pku ospke
+bugs            : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+bogomips        : 4999.99
+clflush size    : 64
+cache_alignment : 64
+address sizes   : 46 bits physical, 48 bits virtual
+power management:
+----
+
+=== Fargate 0.5vCPUの場合
+
+[source]
+----
+2020-10-26 22:51:56 processor : 0
+2020-10-26 22:51:56 vendor_id : GenuineIntel
+2020-10-26 22:51:56 cpu family : 6
+2020-10-26 22:51:56 model : 79
+2020-10-26 22:51:56 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 22:51:56 stepping : 1
+2020-10-26 22:51:56 microcode : 0xb000038
+2020-10-26 22:51:56 cpu MHz : 2300.096
+2020-10-26 22:51:56 cache size : 46080 KB
+2020-10-26 22:51:56 physical id : 0
+2020-10-26 22:51:56 siblings : 2
+2020-10-26 22:51:56 core id : 0
+2020-10-26 22:51:56 cpu cores : 1
+2020-10-26 22:51:56 apicid : 0
+2020-10-26 22:51:56 initial apicid : 0
+2020-10-26 22:51:56 fpu : yes
+2020-10-26 22:51:56 fpu_exception : yes
+2020-10-26 22:51:56 cpuid level : 13
+2020-10-26 22:51:56 wp : yes
+2020-10-26 22:51:56 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt
+2020-10-26 22:51:56 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+2020-10-26 22:51:56 bogomips : 4600.04
+2020-10-26 22:51:56 clflush size : 64
+2020-10-26 22:51:56 cache_alignment : 64
+2020-10-26 22:51:56 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 22:51:56 power management:
+2020-10-26 22:51:56 processor : 1
+2020-10-26 22:51:56 vendor_id : GenuineIntel
+2020-10-26 22:51:56 cpu family : 6
+2020-10-26 22:51:56 model : 79
+2020-10-26 22:51:56 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 22:51:56 stepping : 1
+2020-10-26 22:51:56 microcode : 0xb000038
+2020-10-26 22:51:56 cpu MHz : 2300.096
+2020-10-26 22:51:56 cache size : 46080 KB
+2020-10-26 22:51:56 physical id : 0
+2020-10-26 22:51:56 siblings : 2
+2020-10-26 22:51:56 core id : 0
+2020-10-26 22:51:56 cpu cores : 1
+2020-10-26 22:51:56 apicid : 1
+2020-10-26 22:51:56 initial apicid : 1
+2020-10-26 22:51:56 fpu : yes
+2020-10-26 22:51:56 fpu_exception : yes
+2020-10-26 22:51:56 cpuid level : 13
+2020-10-26 22:51:56 wp : yes
+2020-10-26 22:51:56 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt
+2020-10-26 22:51:56 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+2020-10-26 22:51:56 bogomips : 4600.04
+2020-10-26 22:51:56 clflush size : 64
+2020-10-26 22:51:56 cache_alignment : 64
+2020-10-26 22:51:56 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 22:51:56 power management:
+----
+
+=== Fargate 1vCPUの場合
+
+[source]
+----
+2020-10-26 23:02:50 processor : 0
+2020-10-26 23:02:50 vendor_id : GenuineIntel
+2020-10-26 23:02:50 cpu family : 6
+2020-10-26 23:02:50 model : 62
+2020-10-26 23:02:50 model name : Intel(R) Xeon(R) CPU E5-2680 v2 @ 2.80GHz
+2020-10-26 23:02:50 stepping : 4
+2020-10-26 23:02:50 microcode : 0x42e
+2020-10-26 23:02:50 cpu MHz : 2793.259
+2020-10-26 23:02:50 cache size : 25600 KB
+2020-10-26 23:02:50 physical id : 0
+2020-10-26 23:02:50 siblings : 2
+2020-10-26 23:02:50 core id : 0
+2020-10-26 23:02:50 cpu cores : 1
+2020-10-26 23:02:50 apicid : 0
+2020-10-26 23:02:50 initial apicid : 0
+2020-10-26 23:02:50 fpu : yes
+2020-10-26 23:02:50 fpu_exception : yes
+2020-10-26 23:02:50 cpuid level : 13
+2020-10-26 23:02:50 wp : yes
+2020-10-26 23:02:50 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 cx16 pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm cpuid_fault pti fsgsbase smep erms xsaveopt
+2020-10-26 23:02:50 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+2020-10-26 23:02:50 bogomips : 5586.71
+2020-10-26 23:02:50 clflush size : 64
+2020-10-26 23:02:50 cache_alignment : 64
+2020-10-26 23:02:50 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:02:50 power management:
+2020-10-26 23:02:50 processor : 1
+2020-10-26 23:02:50 vendor_id : GenuineIntel
+2020-10-26 23:02:50 cpu family : 6
+2020-10-26 23:02:50 model : 62
+2020-10-26 23:02:50 model name : Intel(R) Xeon(R) CPU E5-2680 v2 @ 2.80GHz
+2020-10-26 23:02:50 stepping : 4
+2020-10-26 23:02:50 microcode : 0x42e
+2020-10-26 23:02:50 cpu MHz : 2793.259
+2020-10-26 23:02:50 cache size : 25600 KB
+2020-10-26 23:02:50 physical id : 0
+2020-10-26 23:02:50 siblings : 2
+2020-10-26 23:02:50 core id : 0
+2020-10-26 23:02:50 cpu cores : 1
+2020-10-26 23:02:50 apicid : 1
+2020-10-26 23:02:50 initial apicid : 1
+2020-10-26 23:02:50 fpu : yes
+2020-10-26 23:02:50 fpu_exception : yes
+2020-10-26 23:02:50 cpuid level : 13
+2020-10-26 23:02:50 wp : yes
+2020-10-26 23:02:50 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 cx16 pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm cpuid_fault pti fsgsbase smep erms xsaveopt
+2020-10-26 23:02:50 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+2020-10-26 23:02:50 bogomips : 5586.71
+2020-10-26 23:02:50 clflush size : 64
+2020-10-26 23:02:50 cache_alignment : 64
+2020-10-26 23:02:50 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:02:50 power management:
+----
+
+=== Fargate 2vCPUの場合
+
+[source]
+----
+2020-10-26 23:15:25 processor : 0
+2020-10-26 23:15:25 vendor_id : GenuineIntel
+2020-10-26 23:15:25 cpu family : 6
+2020-10-26 23:15:25 model : 79
+2020-10-26 23:15:25 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 23:15:25 stepping : 1
+2020-10-26 23:15:25 microcode : 0xb000038
+2020-10-26 23:15:25 cpu MHz : 2300.040
+2020-10-26 23:15:25 cache size : 46080 KB
+2020-10-26 23:15:25 physical id : 0
+2020-10-26 23:15:25 siblings : 2
+2020-10-26 23:15:25 core id : 0
+2020-10-26 23:15:25 cpu cores : 1
+2020-10-26 23:15:25 apicid : 0
+2020-10-26 23:15:25 initial apicid : 0
+2020-10-26 23:15:25 fpu : yes
+2020-10-26 23:15:25 fpu_exception : yes
+2020-10-26 23:15:25 cpuid level : 13
+2020-10-26 23:15:25 wp : yes
+2020-10-26 23:15:25 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt
+2020-10-26 23:15:25 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+2020-10-26 23:15:25 bogomips : 4600.06
+2020-10-26 23:15:25 clflush size : 64
+2020-10-26 23:15:25 cache_alignment : 64
+2020-10-26 23:15:25 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:15:25 power management:
+2020-10-26 23:15:25 processor : 1
+2020-10-26 23:15:25 vendor_id : GenuineIntel
+2020-10-26 23:15:25 cpu family : 6
+2020-10-26 23:15:25 model : 79
+2020-10-26 23:15:25 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 23:15:25 stepping : 1
+2020-10-26 23:15:25 microcode : 0xb000038
+2020-10-26 23:15:25 cpu MHz : 2300.040
+2020-10-26 23:15:25 cache size : 46080 KB
+2020-10-26 23:15:25 physical id : 0
+2020-10-26 23:15:25 siblings : 2
+2020-10-26 23:15:25 core id : 0
+2020-10-26 23:15:25 cpu cores : 1
+2020-10-26 23:15:25 apicid : 1
+2020-10-26 23:15:25 initial apicid : 1
+2020-10-26 23:15:25 fpu : yes
+2020-10-26 23:15:25 fpu_exception : yes
+2020-10-26 23:15:25 cpuid level : 13
+2020-10-26 23:15:25 wp : yes
+2020-10-26 23:15:25 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm cpuid_fault invpcid_single pti fsgsbase bmi1 avx2 smep bmi2 erms invpcid xsaveopt
+2020-10-26 23:15:25 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit
+2020-10-26 23:15:25 bogomips : 4600.06
+2020-10-26 23:15:25 clflush size : 64
+2020-10-26 23:15:25 cache_alignment : 64
+2020-10-26 23:15:25 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:15:25 power management:
+----
+
+=== Fargate 4vCPUの場合
+
+[source]
+----
+2020-10-26 23:16:56 cpuid level : 13
+2020-10-26 23:16:56 wp : yes
+2020-10-26 23:16:56 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault invpcid_single pti fsgsbase bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx xsaveopt
+2020-10-26 23:16:56 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa itlb_multihit
+2020-10-26 23:16:56 bogomips : 4600.08
+2020-10-26 23:16:56 clflush size : 64
+2020-10-26 23:16:56 cache_alignment : 64
+2020-10-26 23:16:56 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:16:56 power management:
+2020-10-26 23:16:56 processor : 3
+2020-10-26 23:16:56 vendor_id : GenuineIntel
+2020-10-26 23:16:56 cpu family : 6
+2020-10-26 23:16:56 model : 79
+2020-10-26 23:16:56 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 23:16:56 stepping : 1
+2020-10-26 23:16:56 microcode : 0xb000038
+2020-10-26 23:16:56 cpu MHz : 2700.321
+2020-10-26 23:16:56 cache size : 46080 KB
+2020-10-26 23:16:56 physical id : 0
+2020-10-26 23:16:56 siblings : 4
+2020-10-26 23:16:56 core id : 1
+2020-10-26 23:16:56 cpu cores : 2
+2020-10-26 23:16:56 apicid : 3
+2020-10-26 23:16:56 initial apicid : 3
+2020-10-26 23:16:56 fpu : yes
+2020-10-26 23:16:56 fpu_exception : yes
+2020-10-26 23:16:56 cpuid level : 13
+2020-10-26 23:16:56 wp : yes
+2020-10-26 23:16:56 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault invpcid_single pti fsgsbase bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx xsaveopt
+2020-10-26 23:16:56 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa itlb_multihit
+2020-10-26 23:16:56 bogomips : 4600.08
+2020-10-26 23:16:56 processor : 0
+2020-10-26 23:16:56 vendor_id : GenuineIntel
+2020-10-26 23:16:56 cpu family : 6
+2020-10-26 23:16:56 model : 79
+2020-10-26 23:16:56 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 23:16:56 stepping : 1
+2020-10-26 23:16:56 microcode : 0xb000038
+2020-10-26 23:16:56 cpu MHz : 2700.199
+2020-10-26 23:16:56 cache size : 46080 KB
+2020-10-26 23:16:56 physical id : 0
+2020-10-26 23:16:56 siblings : 4
+2020-10-26 23:16:56 core id : 0
+2020-10-26 23:16:56 cpu cores : 2
+2020-10-26 23:16:56 apicid : 0
+2020-10-26 23:16:56 initial apicid : 0
+2020-10-26 23:16:56 fpu : yes
+2020-10-26 23:16:56 fpu_exception : yes
+2020-10-26 23:16:56 cpuid level : 13
+2020-10-26 23:16:56 wp : yes
+2020-10-26 23:16:56 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault invpcid_single pti fsgsbase bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx xsaveopt
+2020-10-26 23:16:56 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa itlb_multihit
+2020-10-26 23:16:56 bogomips : 4600.08
+2020-10-26 23:16:56 clflush size : 64
+2020-10-26 23:16:56 cache_alignment : 64
+2020-10-26 23:16:56 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:16:56 power management:
+2020-10-26 23:16:56 processor : 1
+2020-10-26 23:16:56 vendor_id : GenuineIntel
+2020-10-26 23:16:56 cpu family : 6
+2020-10-26 23:16:56 model : 79
+2020-10-26 23:16:56 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 23:16:56 stepping : 1
+2020-10-26 23:16:56 microcode : 0xb000038
+2020-10-26 23:16:56 cpu MHz : 2700.161
+2020-10-26 23:16:56 cache size : 46080 KB
+2020-10-26 23:16:56 physical id : 0
+2020-10-26 23:16:56 siblings : 4
+2020-10-26 23:16:56 core id : 1
+2020-10-26 23:16:56 cpu cores : 2
+2020-10-26 23:16:56 apicid : 2
+2020-10-26 23:16:56 initial apicid : 2
+2020-10-26 23:16:56 fpu : yes
+2020-10-26 23:16:56 fpu_exception : yes
+2020-10-26 23:16:56 cpuid level : 13
+2020-10-26 23:16:56 wp : yes
+2020-10-26 23:16:56 flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology cpuid aperfmperf pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch cpuid_fault invpcid_single pti fsgsbase bmi1 hle avx2 smep bmi2 erms invpcid rtm rdseed adx xsaveopt
+2020-10-26 23:16:56 bugs : cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs taa itlb_multihit
+2020-10-26 23:16:56 bogomips : 4600.08
+2020-10-26 23:16:56 clflush size : 64
+2020-10-26 23:16:56 cache_alignment : 64
+2020-10-26 23:16:56 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:16:56 power management:
+2020-10-26 23:16:56 processor : 2
+2020-10-26 23:16:56 vendor_id : GenuineIntel
+2020-10-26 23:16:56 cpu family : 6
+2020-10-26 23:16:56 model : 79
+2020-10-26 23:16:56 model name : Intel(R) Xeon(R) CPU E5-2686 v4 @ 2.30GHz
+2020-10-26 23:16:56 stepping : 1
+2020-10-26 23:16:56 microcode : 0xb000038
+2020-10-26 23:16:56 cpu MHz : 2700.143
+2020-10-26 23:16:56 cache size : 46080 KB
+2020-10-26 23:16:56 physical id : 0
+2020-10-26 23:16:56 siblings : 4
+2020-10-26 23:16:56 core id : 0
+2020-10-26 23:16:56 cpu cores : 2
+2020-10-26 23:16:56 apicid : 1
+2020-10-26 23:16:56 initial apicid : 1
+2020-10-26 23:16:56 fpu : yes
+2020-10-26 23:16:56 fpu_exception : yes
+2020-10-26 23:16:56 clflush size : 64
+2020-10-26 23:16:56 cache_alignment : 64
+2020-10-26 23:16:56 address sizes : 46 bits physical, 48 bits virtual
+2020-10-26 23:16:56 power management:
+----
+
+
+== 調査2 Runtime.getRuntime().availableProcessors()
+
+EC2インスタンス上で `Runtime.getRuntime().availableProcessors()` を呼び出すJavaプログラムを実行し、その値を確認する。
+
+[source,java]
+----
+public class Main {
+    public static void main(String[] args) {
+        System.out.println(Runtime.getRuntime().availableProcessors());
+    }
+}
+----
+
+|===
+| vCPU | output
+
+| 1 vCPU | 1
+| 2 vCPU | 2
+|===

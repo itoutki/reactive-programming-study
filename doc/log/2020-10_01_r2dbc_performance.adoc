@@ -24,6 +24,8 @@
 * 負荷ツールにはApache Benchを使う。
 * Concurrencyを100〜1000まで変化させながら1000リクエストの負荷をかけた時のレスポンスの90パーセンタイル値を測定する。
 
+* アプリケーションのソースコードは以下の通り。
+** link:https://github.com/itoutki/webflux-sandbox/tree/master/webflux-r2dbc[]
 
 == テスト結果
 
