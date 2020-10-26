@@ -420,6 +420,13 @@ public class Main {
 }
 ----
 
+[source]
+----
+sudo yum install java-11-amazon-corretto
+javac Main.java
+java Main
+----
+
 |===
 | vCPU | output
 
