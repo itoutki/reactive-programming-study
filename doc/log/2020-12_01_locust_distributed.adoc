@@ -1,0 +1,80 @@
+= Locustで分散実行
+
+Locustでは1台のノードで負荷をかけるモードのほか、
+workerノードを複数立ち上げてより多くの負荷をかけられる分散実行の機能がある。
+ここでは、複数のVMを使ってLocustのworkerノードを複数立ち上げて分散実行を行う方法を説明する。
+なお、Locust自体はコンテナを使って起動する。
+また、Locustのスクリプトファイルとしては以下のものを使用している。
+
+[source, python]
+----
+import random
+from locust import HttpUser, task, between
+
+class QuickstartUser(HttpUser):
+    wait_time = between(1, 1)
+
+    @task
+    def index_page(self):
+        self.client.get("/")
+----
+
+== masterノードの起動
+
+分散実行を行うためには、workerノードのほかにmasterノードを起動する必要がある。
+LocustのWeb UIはmasterノード上で実行される。
+
+dockerコマンドを使ってLocustをmasterノードとして起動するコマンドは以下の通りである。
+ポイントは以下の通りである。
+
+* masterノードとして起動するために `--master` オプションをつける
+* Web UIのための8089ポートを開ける
+* workerノードからの通信を受け付けるための5557ポートを開ける
+* masterノードとworkerノードにおけるLocustのバージョンを揃えるため、コンテナイメージのタグを指定する
+* masterノードとして起動する場合でもLocustのスクリプトファイルの指定が必要になる
+* カレントディレクトリにスクリプトを配置し、カレントディレクトリをマウントした上で指定する
+
+[source, shellscript]
+----
+docker run --rm -d --name locust_test -p 8089:8089 -p 5557:5557 -v $PWD:/mnt/locust locustio/locust:1.4.1 \
+    -f /mnt/locust/locustfile.py --master --loglevel=DEBUG
+----
+
+masterノードとして起動したLocustのWeb UIを表示させると、接続されたworkerの数を示す項目が追加されている。
+
+== workerノードの起動
+
+dockerコマンドを使ってLocustをworkerノードとして起動するコマンドは以下の通りである。
+ポイントは以下の通りである。
+
+* workerノードとして起動するために `--worker` オプションをつける
+* masterノードを指定するために `--master-host` オプションでmasterノードのホスト名（ここではIPアドレス）を指定する
+* masterノードとの通信ポートとしてデフォルトの5557を使用しているため、オプションは特に指定していないが、変えている場合にはオプション指定が必要
+* workerノードからmasterノードにコネクションを張るため、workerノードではポートを開ける必要はない
+* workerノードとして起動する場合でもLocustのスクリプトファイルの指定が必要になる
+* カレントディレクトリにスクリプトを配置し、カレントディレクトリをマウントした上で指定する
+
+[source, shellscript]
+----
+docker run --rm -d --name locust_worker -v $PWD:/mnt/locust locustio/locust:1.4.1 \
+    -f /mnt/locust/locustfile.py --worker --master-host=10.0.0.131 --loglevel=DEBUG
+----
+
+workerノードとして起動すると、masterノードへの接続が行われる。
+masterノードへ正しく接続されると、masterノード側でログが出力される。
+workerノード側のログでは正しく接続されたかを判別できない。しばらくするとエラーログが出る。
+また、正しく分散実行するためにはmasterノードとworkerノードのLocustのバージョンが合っている必要があるが、
+異なるバージョン同士でもエラーでは弾かれず、接続されたように見える。
+
+==　ハマりポイント
+
+* masterノードはWeb UIのための8089ポートのほか、workerノードとの通信用に5557ポートを開ける必要がある。
+* masterノードとworkerノードでLocustのバージョンを揃えないと正しく動作しない。そのため、イメージ指定にlatestを使わない方がよい。
+** workerノードとしては認識されるが、start testで処理が実行されなかったりする。
+** バージョンが揃ってなくても特にエラーログなどは出ないので気づきにくい。
+* t2.microの場合、ファイルディスクリプタ上限（ulimit -n）が1000まで。
+* t2.micro（1vCPU/1GiB Memory）1台で400〜500ユーザ程度が限度。
+
+== 疑問ポイント
+
+* Locustのスクリプトはmasterノードとworkerノードで揃える必要がある？揃えない場合、どちらが有効になる？
