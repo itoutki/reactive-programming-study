@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>Reactive Programming Study</title>
+<title>Locustで分散実行</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,102 +436,172 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article toc2 toc-left">
+<body class="article">
 <div id="header">
-<h1>Reactive Programming Study</h1>
-<div id="toc" class="toc2">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#_log">1. log</a></li>
-<li><a href="#_memo">2. memo</a></li>
-<li><a href="#_introduction_to_webclient">3. introduction-to-webclient</a></li>
-<li><a href="#_introduction_to_webflux">4. introduction-to-webflux</a></li>
-<li><a href="#_webclient">5. webclient</a></li>
-<li><a href="#_webflux">6. webflux</a></li>
-<li><a href="#_参考資料">7. 参考資料</a></li>
-</ul>
-</div>
+<h1>Locustで分散実行</h1>
 </div>
 <div id="content">
-<div class="sect1">
-<h2 id="_log"><a class="anchor" href="#_log"></a>1. log</h2>
+<div id="preamble">
 <div class="sectionbody">
+<div class="paragraph">
+<p>Locustでは1台のノードで負荷をかけるモードのほか、
+workerノードを複数立ち上げてより多くの負荷をかけられる分散実行の機能がある。
+ここでは、複数のVMを使ってLocustのworkerノードを複数立ち上げて分散実行を行う方法を説明する。
+なお、Locust自体はコンテナを使って起動する。
+また、Locustのスクリプトファイルとしては以下のものを使用している。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">import random
+from locust import HttpUser, task, between
+
+class QuickstartUser(HttpUser):
+    wait_time = between(1, 1)
+
+    @task
+    def index_page(self):
+        self.client.get("/")</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_masterノードの起動">masterノードの起動</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>分散実行を行うためには、workerノードのほかにmasterノードを起動する必要がある。
+LocustのWeb UIはmasterノード上で実行される。</p>
+</div>
+<div class="paragraph">
+<p>dockerコマンドを使ってLocustをmasterノードとして起動するコマンドは以下の通りである。
+ポイントは以下の通りである。</p>
+</div>
 <div class="ulist">
 <ul>
 <li>
-<p><a href="log">log</a></p>
+<p>masterノードとして起動するために <code>--master</code> オプションをつける</p>
+</li>
+<li>
+<p>Web UIのための8089ポートを開ける</p>
+</li>
+<li>
+<p>workerノードからの通信を受け付けるための5557ポートを開ける</p>
+</li>
+<li>
+<p>masterノードとworkerノードにおけるLocustのバージョンを揃えるため、コンテナイメージのタグを指定する</p>
+</li>
+<li>
+<p>masterノードとして起動する場合でもLocustのスクリプトファイルの指定が必要になる</p>
+</li>
+<li>
+<p>カレントディレクトリにスクリプトを配置し、カレントディレクトリをマウントした上で指定する</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shellscript" data-lang="shellscript">docker run --rm -d --name locust_test -p 8089:8089 -p 5557:5557 -v $PWD:/mnt/locust locustio/locust:1.4.1 \
+    -f /mnt/locust/locustfile.py --master --loglevel=DEBUG</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>masterノードとして起動したLocustのWeb UIを表示させると、接続されたworkerの数を示す項目が追加されている。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_workerノードの起動">workerノードの起動</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>dockerコマンドを使ってLocustをworkerノードとして起動するコマンドは以下の通りである。
+ポイントは以下の通りである。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>workerノードとして起動するために <code>--worker</code> オプションをつける</p>
+</li>
+<li>
+<p>masterノードを指定するために <code>--master-host</code> オプションでmasterノードのホスト名（ここではIPアドレス）を指定する</p>
+</li>
+<li>
+<p>masterノードとの通信ポートとしてデフォルトの5557を使用しているため、オプションは特に指定していないが、変えている場合にはオプション指定が必要</p>
+</li>
+<li>
+<p>workerノードからmasterノードにコネクションを張るため、workerノードではポートを開ける必要はない</p>
+</li>
+<li>
+<p>workerノードとして起動する場合でもLocustのスクリプトファイルの指定が必要になる</p>
+</li>
+<li>
+<p>カレントディレクトリにスクリプトを配置し、カレントディレクトリをマウントした上で指定する</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-shellscript" data-lang="shellscript">docker run --rm -d --name locust_worker -v $PWD:/mnt/locust locustio/locust:1.4.1 \
+    -f /mnt/locust/locustfile.py --worker --master-host=10.0.0.131 --loglevel=DEBUG</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>workerノードとして起動すると、masterノードへの接続が行われる。
+masterノードへ正しく接続されると、masterノード側でログが出力される。
+workerノード側のログでは正しく接続されたかを判別できない。しばらくするとエラーログが出る。
+また、正しく分散実行するためにはmasterノードとworkerノードのLocustのバージョンが合っている必要があるが、
+異なるバージョン同士でもエラーでは弾かれず、接続されたように見える。</p>
+</div>
+<div class="paragraph">
+<p>==　ハマりポイント</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>masterノードはWeb UIのための8089ポートのほか、workerノードとの通信用に5557ポートを開ける必要がある。</p>
+</li>
+<li>
+<p>masterノードとworkerノードでLocustのバージョンを揃えないと正しく動作しない。そのため、イメージ指定にlatestを使わない方がよい。</p>
+<div class="ulist">
+<ul>
+<li>
+<p>workerノードとしては認識されるが、start testで処理が実行されなかったりする。</p>
+</li>
+<li>
+<p>バージョンが揃ってなくても特にエラーログなどは出ないので気づきにくい。</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>t2.microの場合、ファイルディスクリプタ上限（ulimit -n）が1000まで。</p>
+</li>
+<li>
+<p>t2.micro（1vCPU/1GiB Memory）1台で400〜500ユーザ程度が限度。</p>
 </li>
 </ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_memo"><a class="anchor" href="#_memo"></a>2. memo</h2>
+<h2 id="_疑問ポイント">疑問ポイント</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="memo">メモ</a></p>
+<p>Locustのスクリプトはmasterノードとworkerノードで揃える必要がある？揃えない場合、どちらが有効になる？</p>
+<div class="ulist">
+<ul>
+<li>
+<p>揃える必要はない。</p>
+</li>
+<li>
+<p>揃えない場合、workerノードで指定されたスクリプトが有効になる。</p>
+</li>
+<li>
+<p>masterノードで指定するスクリプトはユーザクラスが定義されていればなんでもよい。</p>
 </li>
 </ul>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_introduction_to_webclient"><a class="anchor" href="#_introduction_to_webclient"></a>3. introduction-to-webclient</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="introduction-to-webclient">introduction-to-webclient</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_introduction_to_webflux"><a class="anchor" href="#_introduction_to_webflux"></a>4. introduction-to-webflux</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="introduction-to-webflux">introduciton-to-webflux</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_webclient"><a class="anchor" href="#_webclient"></a>5. webclient</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="webclient">webclient</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_webflux"><a class="anchor" href="#_webflux"></a>6. webflux</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="webflux">webflux</a></p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_参考資料"><a class="anchor" href="#_参考資料"></a>7. 参考資料</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p><a href="references">参考資料</a></p>
 </li>
 </ul>
 </div>
