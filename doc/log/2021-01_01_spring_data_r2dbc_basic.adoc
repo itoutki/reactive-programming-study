@@ -39,14 +39,19 @@ Spring Data R2DBCはSpring Dataの仕組みでR2DBCを使うためのモジュ�
 
 Spring R2DBCが提供するローレベルのクライアント。
 
+* link:https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#r2dbc[Data Access]
+
 == R2dbcEntitiyTemplate
 
 Spring Data R2DBCが提供するエンティティベースのクライアント。
+
+* link:https://docs.spring.io/spring-data/r2dbc/docs/current/reference/html/#r2dbc.core[Spring Data R2DBC - Reference Documentation]
 
 == ReactiveCrudRepository / ReactiveSortingRepository
 
 Spring Dataで提供されるレポジトリ機能のR2DBC版。
 
+* link:https://docs.spring.io/spring-data/r2dbc/docs/current/reference/html/#r2dbc.repositories[Spring Data R2DBC - Reference Documentation]
 
 == Spring BootにおけるR2DBC / Spring Data R2DBC
 
@@ -111,3 +116,5 @@ Spring BootではSpring Data R2DBCのテスト向けに `@DataR2dbcTest` アノ�
 * R2DBC Migrate
 * R2DBC SPIの内容
 * R2DBC Driverの実装内容
+
+* link:https://docs.google.com/presentation/d/11Ot64-hjuhWfIqi3h85sKuHO4NCO9twMJUeiK9mNJSE/edit#slide=id.gc6f73a04f_0_0[R2DBC Introduction - Google スライド]
