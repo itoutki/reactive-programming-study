@@ -31,6 +31,7 @@
 * link:https://bufferings.hatenablog.com/entry/2018/03/27/233152[SpringBoot2のBlocking Web vs Reactive WebについてLTしてきた - Mitsuyuki.Shiiba]
 * link:https://docs.google.com/presentation/d/1-0NopTfA-CGiCNvKPDOH9ZDMHhazKuoT-_1R69Wp8qs[Functional Spring Cookbook]
 * link:https://www.slideshare.net/TakuyaIwatsuka/spring-5[Spring 5に備えるリアクティブプログラミング入門]
+
 == RSocket関連
 * link:https://docs.google.com/presentation/d/1ygSM85-RQ3NZjCg6RaZ52mGzxbWiItVwzlCpr1vaWBw/edit?usp=sharing[RSocket徹底入門]
 

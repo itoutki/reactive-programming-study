@@ -1,0 +1,113 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+:source-highlighter: coderay
+
+= Spring Data R2DBCメモ
+
+
+== Spring Data R2DBCの始め方（2020.01版）
+
+* Open JDK 15.0.1
+* Spring Boot 2.4.1
+* Spring R2DBC 5.3.2
+* Spring Data R2DBC 1.2.2
+
+spring-boot-starter-data-r2dbcを依存関係に追加すると、
+Spring Data R2DBCとSpring R2DBCが依存関係に追加される。
+Spring R2DBCはSpring FrameworkによるR2DBCのコア機能を提供するモジュール。
+Spring Data R2DBCはSpring Dataの仕組みでR2DBCを使うためのモジュール。
+
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-r2dbc</artifactId>
+</dependency>
+<!-- R2DBC Driver for MySQL -->
+<dependency>
+    <groupId>dev.miku</groupId>
+    <artifactId>r2dbc-mysql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+----
+
+== DatabaseClient
+
+Spring R2DBCが提供するローレベルのクライアント。
+
+== R2dbcEntitiyTemplate
+
+Spring Data R2DBCが提供するエンティティベースのクライアント。
+
+== ReactiveCrudRepository / ReactiveSortingRepository
+
+Spring Dataで提供されるレポジトリ機能のR2DBC版。
+
+
+== Spring BootにおけるR2DBC / Spring Data R2DBC
+
+* Spring R2DBCのAuto-Configuration
+** ConnectionFactory
+** ConnectionPool
+** TransactionManager
+** DatabaseClient
+
+* Spring Data R2DBCのAuto-Configuration
+** R2dbcEntityTemplate
+** R2dbcMappingContext
+** MappingR2dbcConverter
+** R2dbcCustomConvensions
+** @EnableR2dbcRepositories
+
+* link:https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#boot-features-r2dbc[Spring Boot Reference Documentation]
+
+== Spring Data R2DBCとSpring R2DBC
+
+Spring Data R2DBC 1.1.xではDatabaseClientを含んでいたが、
+Spring Framework 5.3.0でSpring R2DBCモジュールが導入され、
+DatabaseClientがSpring R2DBCモジュールから提供されることになり、
+Spring Data R2DBC 1.2.0ではDatabaseClientがDeprecatedになった。
+Spring R2DBCから提供されるDatabaseClientはNamedParameterJdbcTemplateと同じレベルの抽象度として再整理され、
+APIも変わっており、 `as` メソッドなどがなくなっているため注意が必要。
+公式ドキュメントでは、1.1.xから1.2.xへのマイグレーションガイドもある。
+
+* link:https://stackoverflow.com/questions/64647566/spring-r2dbc-databaseclient-as[java - Spring R2DBC DatabaseClient.as(…) - Stack Overflow]
+* link:https://docs.spring.io/spring-data/r2dbc/docs/current/reference/html/#upgrading.1.1-1.2[Spring Data R2DBC - Reference Documentation]
+
+== Embedded Entity / One-to-One One-to-Many relationship
+
+Spring Data R2DBCではEmbedded Entity（エンティティクラスのメンバ変数として別クラスを持つ形）はまだサポートされていない。
+
+* link:https://github.com/spring-projects/spring-data-r2dbc/issues/288[Add support for embedded entities · Issue #288 · spring-projects/spring-data-r2dbc]
+
+同様に、One-to-Oneのリレーション（2つのテーブルで1:1の関係）や
+One-to-Manyのリレーション（2つのテーブルで1:Nの関係）のエンティティを取得する方法はまだサポートされていない。
+
+* link:https://github.com/spring-projects/spring-data-r2dbc/issues/356[Support for one-to-one and one-to-many relationships · Issue #356 · spring-projects/spring-data-r2dbc]
+
+
+== テストにおけるトランザクション（または自動ロールバック）
+
+Spring BootではSpring Data R2DBCのテスト向けに `@DataR2dbcTest` アノテーションを提供しているが、
+他のアノテーションと異なり、 `@Transactional` を含んでいない。
+
+なお、テストクラスに個別に `@Transactional` を付与してもトランザクションが効かずコミットされる。
+
+== Parking lot
+
+* ページネーション
+* 検索などの動的クエリ
+* 楽観ロック
+* Audit機能（created_by、created_at、updated_by、updated_at）
+* ロギング
+* JOINなどを含む複雑なSQLクエリ
+* 複合キーのエンティティに対するRepository
+* Connection Pool
+* R2DBC Proxy
+* R2DBC Migrate
+* R2DBC SPIの内容
+* R2DBC Driverの実装内容

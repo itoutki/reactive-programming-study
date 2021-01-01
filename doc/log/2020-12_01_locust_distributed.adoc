@@ -1,3 +1,11 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+:source-highlighter: coderay
+
 = Locustで分散実行
 
 Locustでは1台のノードで負荷をかけるモードのほか、
