@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
-<title>Spring WebFluxのロギングでMDCを使う</title>
+<title>負荷テストツール Locust入門</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -437,40 +437,154 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 #footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/github.min.css">
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Spring WebFluxのロギングでMDCを使う</h1>
+<h1>負荷テストツール Locust入門</h1>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_参考資料">1. 参考資料</a></li>
+<li><a href="#_locustとは">1. Locustとは</a></li>
+<li><a href="#_quick_start">2. Quick Start</a>
+<ul class="sectlevel2">
+<li><a href="#_負荷テストのシナリオ作成">2.1. 負荷テストのシナリオ作成</a></li>
+<li><a href="#_負荷テストの実行">2.2. 負荷テストの実行</a></li>
+</ul>
+</li>
+<li><a href="#_参考">3. 参考</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_参考資料"><a class="anchor" href="#_参考資料"></a>1. 参考資料</h2>
+<h2 id="_locustとは"><a class="anchor" href="#_locustとは"></a>1. Locustとは</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Pythonで実装された負荷テストツール。<br>
+負荷テストのシナリオをPythonのスクリプトとして書ける。<br>
+負荷テスト実行用のノード（workerノード）を複数起動して分散実行できる機能を備えており、大量の負荷をかけられる。<br>
+Web UIがあり、負荷テストの実行状況をグラフなどから確認できる。</p>
+</div>
+<div class="paragraph">
+<p>ここでは執筆時点での最新版である1.4.3を前提にしている。</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_quick_start"><a class="anchor" href="#_quick_start"></a>2. Quick Start</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Locustをインストール・起動する方法としては大きく2つある。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Pythonのパッケージ管理ツールであるpipを使ってLocustをインストールし、コマンドとして起動する</p>
+</li>
+<li>
+<p>Dockerを使って起動する。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>ここでは、環境構築が簡単なDockerを使って起動する方法について説明する。</p>
+</div>
+<div class="sect2">
+<h3 id="_負荷テストのシナリオ作成"><a class="anchor" href="#_負荷テストのシナリオ作成"></a>2.1. 負荷テストのシナリオ作成</h3>
+<div class="paragraph">
+<p>負荷テストのシナリオとして、以下の内容のlocustfile.pyを作成する。
+ここでは、URL「/」に対して1秒ごとにGETリクエストを送信するシナリオを作成している。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python hljs" data-lang="python">import random
+from locust import HttpUser, task, between
+
+class QuickstartUser(HttpUser): # <b class="conum">(1)</b>
+    wait_time = between(1, 1)   # <b class="conum">(2)</b>
+
+    @task                       # <b class="conum">(3)</b>
+    def index_page(self):
+        self.client.get("/")    # <b class="conum">(4)</b></code></pre>
+</div>
+</div>
+<div class="colist arabic">
+<ol>
+<li>
+<p>HttpUserクラスを継承したクラスを定義する。</p>
+</li>
+<li>
+<p>wait_time属性にテストシナリオの実行間隔を指定する。ここでは最小1秒・最大1秒として指定している。</p>
+</li>
+<li>
+<p>@taskデコレータを付与したメソッドを定義し、その中で実行したいシナリオを記述する。</p>
+</li>
+<li>
+<p>self.clientに設定されたHttpSessionのインスタンスを使用し、リクエスト処理を記述する。</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_負荷テストの実行"><a class="anchor" href="#_負荷テストの実行"></a>2.2. 負荷テストの実行</h3>
+<div class="paragraph">
+<p>以下のコマンドでLocustを起動する。ポイントとしては以下の4点。</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Web UIがポート8089で起動するため、ポート8089をホストポート8089で公開する（-p 8089:8089）</p>
+</li>
+<li>
+<p>作成したlocustfile.pyをコンテナに渡すため、現在のディレクトリを「/mnt/locust」にマウントする（-v $PWD:/mnt/locust）</p>
+</li>
+<li>
+<p>コンテナイメージとして、locustio/locustを指定する</p>
+</li>
+<li>
+<p>locustの実行パラメータとして、作成した負荷シナリオのファイル名を渡す（-f /mnt/locust/locustfile.py）</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-shellscript hljs" data-lang="shellscript">docker run --rm --name locust_test -p 8089:8089 -v $PWD:/mnt/locust locustio/locust:1.4.3 -f /mnt/locust/locustfile.py</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>ブラウザで「http://localhost:8089」にアクセスし、LocustのWeb UIを表示させる。</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./../images/log/locust_01.png" alt="locust 01"></span></p>
+</div>
+<div class="paragraph">
+<p>「Number of total users to simulate」に負荷シナリオを実行するユーザ数（≒同時実行数）を指定する。<br>
+「Spawn rate」に1秒あたりの実行ユーザ数の増加量を指定する。（例：5と指定すると1秒ごとに5ユーザずつ増えていく）<br>
+「Host」に対象ホストを指定する。<br>
+「Start swarming」を押下すると負荷テストが開始される。<br>
+負荷テストが開始されると以下のような画面に切り替わる。</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./../images/log/locust_02.png" alt="locust 02"></span></p>
+</div>
+<div class="paragraph">
+<p>この画面では、各URLに対する負荷テストの統計情報（レスポンスの平均・最大・RPSなど）をリアルタイムに確認できる。<br>
+画面上部の「Charts」を選択すると、以下のようにRPS・レスポンスタイム・実行ユーザ数をグラフで確認できる。</p>
+</div>
+<div class="paragraph">
+<p><span class="image"><img src="./../images/log/locust_03.png" alt="locust 03"></span></p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_参考"><a class="anchor" href="#_参考"></a>3. 参考</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="https://projectreactor.io/docs/core/release/reference/#faq.mdc">Reactor 3 Reference Guide</a></p>
-</li>
-<li>
-<p><a href="https://github.com/archie-swif/webflux-mdc">archie-swif/webflux-mdc</a></p>
-</li>
-<li>
-<p><a href="https://github.com/spring-projects/spring-framework/issues/20239">RequestContextHolder for Reactive Web \[SPR-15680] · Issue #20239 · spring-projects/spring-framework</a></p>
-</li>
-<li>
-<p><a href="https://github.com/spring-cloud/spring-cloud-sleuth/blob/master/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/web/TraceWebFluxAutoConfiguration.java">spring-cloud-sleuth/TraceWebFluxAutoConfiguration.java at master · spring-cloud/spring-cloud-sleuth</a></p>
-</li>
-<li>
-<p><a href="https://github.com/spring-cloud/spring-cloud-sleuth/blob/master/spring-cloud-sleuth-core/src/main/java/org/springframework/cloud/sleuth/instrument/reactor/TraceReactorAutoConfiguration.java">spring-cloud-sleuth/TraceReactorAutoConfiguration.java at master · spring-cloud/spring-cloud-sleuth</a></p>
-</li>
-<li>
-<p><a href="https://speakerdeck.com/line_developers/examples-of-using-spring-and-webflux-in-the-chat-system-for-line-official-accounts?slide=49">LINE公式アカウントのチャットシステムにおけるSpringおよびWebFluxの活用事例 / Examples of using Spring and WebFlux in the chat system for LINE official accounts - Speaker Deck</a></p>
+<p><a href="https://locust.io/">Locust - A modern load testing framework</a></p>
 </li>
 </ul>
 </div>
@@ -482,5 +596,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 Last updated 2021-02-18 08:42:34 UTC
 </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+<script>
+if (!hljs.initHighlighting.called) {
+  hljs.initHighlighting.called = true
+  ;[].slice.call(document.querySelectorAll('pre.highlight > code')).forEach(function (el) { hljs.highlightBlock(el) })
+}
+</script>
 </body>
 </html>
