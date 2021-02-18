@@ -1,0 +1,26 @@
+:toc: left
+:toctitle: 目次
+:sectnums:
+:sectanchors:
+:sectinks:
+:chapter-label:
+:source-highlighter: coderay
+
+= 性能テスト
+
+
+== Spring MVC
+
+* CPU: 2 vCPU
+* Memory: 4 GB
+* Tomcatの最大thread数: 2000
+* hikariCPの最大コネクション数: 100
+
+* ケース1 単純なGETリクエスト・DBアクセスなしの場合 
+** レスポンスタイム: 120 ms
+** 最大RPS: 6300 RPS
+** ボトルネック: CPU
+** live thread数: 1000 スレッド
+** committed heap: 959 MiB
+** committed non-heap: 63 MiB
+
